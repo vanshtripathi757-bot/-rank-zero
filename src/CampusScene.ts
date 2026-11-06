@@ -24,6 +24,15 @@ export default class CampusScene extends Phaser.Scene {
   private classroomY = 0;
   private orientationStarted = false;
   private orientationComplete = false;
+  private libraryX = 0;
+  private libraryY = 0;
+  private libraryComplete = false;
+  private cafeteriaX = 0;
+  private cafeteriaY = 0;
+  private cafeteriaComplete = false;
+  private sportsX = 0;
+  private sportsY = 0;
+  private sportsComplete = false;
 
   constructor(initialXp = 0) {
     super('Campus');
@@ -33,6 +42,9 @@ export default class CampusScene extends Phaser.Scene {
     this.homeroomMissionComplete = initialXp >= 200;
     this.orientationStarted = initialXp >= 250;
     this.orientationComplete = initialXp >= 350;
+    this.libraryComplete = initialXp >= 400;
+    this.cafeteriaComplete = initialXp >= 450;
+    this.sportsComplete = initialXp >= 500;
   }
 
   preload() {
@@ -80,6 +92,22 @@ export default class CampusScene extends Phaser.Scene {
       fontFamily: 'Arial', fontSize: '10px', color: '#d9f5ff',
       stroke: '#14233c', strokeThickness: 3,
     }).setOrigin(0.5);
+
+    // Three explorable campus destinations extend the first-day chapter beyond onboarding.
+    const addExploreMarker = (x: number, y: number, label: string, color: number) => {
+      const marker = this.add.circle(x, y, 20, color, 0.12).setStrokeStyle(2, color, 0.9);
+      this.tweens.add({ targets: marker, scale: 1.22, alpha: 0.45, duration: 1350, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+      this.add.text(x, y - 34, label, {
+        fontFamily: 'Arial', fontSize: '10px', color: '#ffffff',
+        stroke: '#17162b', strokeThickness: 3,
+      }).setOrigin(0.5);
+    };
+    this.libraryX = w * 0.2; this.libraryY = h * 0.34;
+    this.cafeteriaX = w * 0.8; this.cafeteriaY = h * 0.34;
+    this.sportsX = w * 0.2; this.sportsY = h * 0.69;
+    addExploreMarker(this.libraryX, this.libraryY, 'LIBRARY', 0x9bdbff);
+    addExploreMarker(this.cafeteriaX, this.cafeteriaY, 'CAFETERIA', 0xffc77d);
+    addExploreMarker(this.sportsX, this.sportsY, 'SPORTS COURT', 0x8ce0b8);
 
     // Keep one clear destination marker; avoid duplicated homeroom labels.
 
@@ -211,6 +239,9 @@ export default class CampusScene extends Phaser.Scene {
     const teacherDistance = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.teacherX, this.teacherY);
     const homeroomDistance = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.homeroomX, this.homeroomY);
     const classroomDistance = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.classroomX, this.classroomY);
+    const libraryDistance = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.libraryX, this.libraryY);
+    const cafeteriaDistance = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.cafeteriaX, this.cafeteriaY);
+    const sportsDistance = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.sportsX, this.sportsY);
     if (!this.firstMissionComplete && classmateDistance < 125) {
       this.dialogue.setText('Classmate: Welcome! The teacher near the east path can guide you to Class D.');
       this.firstMissionComplete = true;
@@ -230,9 +261,21 @@ export default class CampusScene extends Phaser.Scene {
     } else if (this.orientationStarted && !this.orientationComplete && classroomDistance < 110) {
       this.dialogue.setText('Orientation complete. You are officially registered as a Class D student. Your campus access is now active.');
       this.orientationComplete = true;
-      this.game.events.emit('mission-complete', { xp: 100, nextObjective: 'Explore the Foundation Campus' });
-    } else if (classmateDistance >= 125 && teacherDistance >= 125 && homeroomDistance >= 105 && classroomDistance >= 110) {
-      this.dialogue.setText('Move closer to a nearby character or the Class D entrance to interact.');
+      this.game.events.emit('mission-complete', { xp: 100, nextObjective: 'Explore the library in the west courtyard' });
+    } else if (this.orientationComplete && !this.libraryComplete && libraryDistance < 95) {
+      this.dialogue.setText('Library: The academy archive holds course records, club notices, and clues about the campus. Your exploration begins here.');
+      this.libraryComplete = true;
+      this.game.events.emit('mission-complete', { xp: 50, nextObjective: 'Visit the cafeteria on the east side' });
+    } else if (this.libraryComplete && !this.cafeteriaComplete && cafeteriaDistance < 95) {
+      this.dialogue.setText('Cafeteria: Students gather here between lessons. You have found another important part of academy life.');
+      this.cafeteriaComplete = true;
+      this.game.events.emit('mission-complete', { xp: 50, nextObjective: 'Explore the sports court in the south-west' });
+    } else if (this.cafeteriaComplete && !this.sportsComplete && sportsDistance < 95) {
+      this.dialogue.setText('Sports Court: Clubs and inter-class competitions are held here. Foundation Campus exploration complete.');
+      this.sportsComplete = true;
+      this.game.events.emit('mission-complete', { xp: 50, nextObjective: 'Chapter 1 complete — await the next academy event' });
+    } else if (classmateDistance >= 125 && teacherDistance >= 125 && homeroomDistance >= 105 && classroomDistance >= 110 && libraryDistance >= 95 && cafeteriaDistance >= 95 && sportsDistance >= 95) {
+      this.dialogue.setText('Move closer to the highlighted character or campus destination to interact.');
     } else if (!this.firstMissionComplete) {
       this.dialogue.setText('Classmate: Come closer and say hello.');
     } else if (!this.teacherMissionComplete) {
@@ -243,6 +286,12 @@ export default class CampusScene extends Phaser.Scene {
       this.dialogue.setText('Class D: Head to the blue orientation marker near the upper courtyard.');
     } else if (!this.orientationComplete) {
       this.dialogue.setText('Instructor: Press TALK again here when you are ready to finish orientation.');
+    } else if (!this.libraryComplete) {
+      this.dialogue.setText('Explore the library in the west courtyard. Follow the blue marker.');
+    } else if (!this.cafeteriaComplete) {
+      this.dialogue.setText('Visit the cafeteria on the east side. Follow the gold marker.');
+    } else if (!this.sportsComplete) {
+      this.dialogue.setText('Explore the sports court in the south-west. Follow the green marker.');
     } else {
       this.dialogue.setText('Chapter 1 complete. Your academy journey begins here.');
     }
