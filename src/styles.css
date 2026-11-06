@@ -11,7 +11,9 @@
 .world{position:relative;width:100%;height:100%;overflow:hidden;background:#11142c}.stage{position:absolute;inset:0}.stage canvas{display:block;width:100%!important;height:100%!important}.hud{position:absolute;z-index:10;top:max(14px,env(safe-area-inset-top));left:14px;right:14px;display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none}.profile,.zone,.menu-toggle{pointer-events:auto;background:#0b1024dd;border:1px solid #a991ff66;box-shadow:0 5px 25px #0005;backdrop-filter:blur(12px)}.profile{display:flex;align-items:center;gap:10px;padding:8px 13px 8px 8px;border-radius:9px}.profile>b{display:grid;place-items:center;width:34px;height:34px;border-radius:7px;background:linear-gradient(135deg,#7b5cff,#34205f)}.profile span{font-size:10px;font-weight:800;letter-spacing:1px}.profile small{display:block;color:#aaa3c8;font-size:9px;margin-top:4px}.zone{position:absolute;left:50%;transform:translateX(-50%);top:4px;border-radius:30px;padding:10px 15px;font-size:10px;letter-spacing:1.5px;color:#e5dcff;background:transparent;border:0;box-shadow:none;backdrop-filter:none;white-space:nowrap;text-shadow:0 2px 6px #090b1b}.menu-toggle{width:40px;height:40px;color:white;border-radius:9px;font-size:19px}.mission{position:absolute;z-index:10;left:14px;top:118px;bottom:auto;display:flex;flex-direction:column;gap:5px;padding:8px 2px;border:0;border-radius:0;background:transparent;box-shadow:none;backdrop-filter:none;text-shadow:0 2px 5px #090b1b,0 0 8px #090b1b}.mission small{color:#b6a2ff;font-size:9px;letter-spacing:1.4px}.mission b{font-size:11px;color:#fff}.mission.completed{border:0;background:transparent}.mission.completed small{color:#8ce0b8}.menu{position:absolute;z-index:20;top:65px;right:14px;width:180px;padding:8px;border:1px solid #a991ff77;border-radius:10px;background:#0b1024f2;box-shadow:0 12px 35px #0008}.menu button{display:block;width:100%;padding:11px;border:0;border-radius:6px;text-align:left;color:#f7f4ff;background:transparent;font-size:12px}.menu button:hover{background:#8c70ff33}.prototype{display:none}
 @media(max-width:650px){.title{min-height:540px}.copy{top:29%}.skyline{width:90%;height:66%;opacity:.45}.copy p:not(.eyebrow){max-width:280px}.zone{top:58px;font-size:9px;padding:7px 11px}.hud{left:10px;right:10px}.profile{padding:6px 9px 6px 6px}.profile>b{width:30px;height:30px}.profile span{font-size:9px}.profile small{font-size:8px}.menu-toggle{width:38px;height:38px}.mission{left:10px;top:118px;max-width:calc(100% - 20px);padding:9px 11px}.mission b{font-size:10px}.title footer{font-size:7px;letter-spacing:1px}}
 
-/* On phones, keep the actual game viewport in landscape orientation. */
+
+/* Fixed 16:9 game canvas. On portrait phones rotate the complete game surface
+   so the world, HUD, joystick and action button stay aligned in landscape. */
 @media (orientation: portrait) and (max-width: 900px) {
   .world {
     position: absolute;
@@ -22,7 +24,13 @@
     transform: rotate(90deg);
     transform-origin: center center;
   }
-  .world .stage { position:absolute; inset:0; }
-  .world .hud { top: max(10px, env(safe-area-inset-top)); }
-  .world .mission { top: 112px; left: 14px; }
+  .world .stage {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .world .hud { top: 10px; left: 12px; right: 12px; }
+  .world .zone { top: 8px; }
+  .world .mission { top: 68px; left: 12px; max-width: 52%; }
 }
