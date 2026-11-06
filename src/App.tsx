@@ -17,6 +17,9 @@ class CampusScene extends Phaser.Scene {
   private teacherX = 0;
   private teacherY = 0;
   private teacherMissionComplete = false;
+  private homeroomX = 0;
+  private homeroomY = 0;
+  private homeroomMissionComplete = false;
 
   constructor() { super('Campus'); }
 
@@ -139,6 +142,25 @@ class CampusScene extends Phaser.Scene {
       g.fillRect(x - 17, h * 0.83 + 7, 4, 12); g.fillRect(x + 13, h * 0.83 + 7, 4, 12);
     }
 
+    // Class D homeroom entrance: a visible, interactable destination for onboarding.
+    this.homeroomX = w * 0.5;
+    this.homeroomY = h * 0.49;
+    g.fillStyle(0x101628, 0.55);
+    g.fillRoundedRect(this.homeroomX - 72, this.homeroomY - 48, 144, 74, 5);
+    g.fillStyle(0x77708f, 1);
+    g.fillRect(this.homeroomX - 65, this.homeroomY - 43, 130, 8);
+    g.fillStyle(0x25243d, 1);
+    g.fillRoundedRect(this.homeroomX - 21, this.homeroomY - 36, 42, 62, 4);
+    g.fillStyle(0xc8a8ff, 0.9);
+    g.fillCircle(this.homeroomX + 12, this.homeroomY - 5, 3);
+    g.fillStyle(0xe5d5a7, 0.9);
+    g.fillRect(this.homeroomX - 58, this.homeroomY - 32, 24, 24);
+    g.fillRect(this.homeroomX + 34, this.homeroomY - 32, 24, 24);
+    this.add.text(this.homeroomX, this.homeroomY - 62, 'CLASS D · HOMEROOM', {
+      fontFamily: 'Arial', fontSize: '10px', color: '#fff0d4',
+      backgroundColor: '#17152dcc', padding: { x: 7, y: 4 },
+    }).setOrigin(0.5);
+
     // A classmate NPC for the first social interaction.
     this.npcX = w * 0.5;
     this.npcY = h * 0.61;
@@ -259,22 +281,29 @@ class CampusScene extends Phaser.Scene {
     if (!this.player || !this.dialogue) return;
     const classmateDistance = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.npcX, this.npcY);
     const teacherDistance = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.teacherX, this.teacherY);
+    const homeroomDistance = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.homeroomX, this.homeroomY);
     if (!this.firstMissionComplete && classmateDistance < 125) {
       this.dialogue.setText('Classmate: Welcome! The teacher near the east path can guide you to Class D.');
       this.firstMissionComplete = true;
       this.game.events.emit('mission-complete', { xp: 50, nextObjective: 'Find the teacher near the east path' });
     } else if (this.firstMissionComplete && !this.teacherMissionComplete && teacherDistance < 125) {
-      this.dialogue.setText('Teacher: Welcome to Class D. Your homeroom is ready. Follow the central path.');
+      this.dialogue.setText('Teacher: Welcome to Class D. Your homeroom is the marked entrance near the central hall.');
       this.teacherMissionComplete = true;
-      this.game.events.emit('mission-complete', { xp: 50, nextObjective: 'Reach the central homeroom entrance' });
-    } else if (classmateDistance >= 125 && teacherDistance >= 125) {
-      this.dialogue.setText('Move closer to a nearby character to interact.');
+      this.game.events.emit('mission-complete', { xp: 50, nextObjective: 'Enter the Class D homeroom' });
+    } else if (this.teacherMissionComplete && !this.homeroomMissionComplete && homeroomDistance < 105) {
+      this.dialogue.setText('You entered Class D. Your first lesson is about to begin. Welcome to the academy.');
+      this.homeroomMissionComplete = true;
+      this.game.events.emit('mission-complete', { xp: 100, nextObjective: 'Chapter 1 complete — await your first lesson' });
+    } else if (classmateDistance >= 125 && teacherDistance >= 125 && homeroomDistance >= 105) {
+      this.dialogue.setText('Move closer to a nearby character or the Class D entrance to interact.');
     } else if (!this.firstMissionComplete) {
       this.dialogue.setText('Classmate: Come closer and say hello.');
     } else if (!this.teacherMissionComplete) {
       this.dialogue.setText('Teacher: I will be waiting near the east path.');
+    } else if (!this.homeroomMissionComplete) {
+      this.dialogue.setText('Class D: Move to the marked homeroom entrance and press TALK.');
     } else {
-      this.dialogue.setText('Teacher: Your Class D homeroom is along the central path.');
+      this.dialogue.setText('Chapter 1 complete. Your academy journey begins here.');
     }
     this.time.delayedCall(3800, () => this.dialogue?.setText(''));
   }
