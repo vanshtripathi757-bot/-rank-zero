@@ -28,9 +28,20 @@ class CampusScene extends Phaser.Scene {
     g.fillPoints(points.map(([x, y]) => new Phaser.Geom.Point(x, y)), true);
   }
 
+  preload() {
+    this.load.svg('campus-background', '/assets/campus-background.svg');
+  }
+
   create() {
     const { width: w, height: h } = this.scale;
+    if (this.textures.exists('campus-background')) {
+      const bg = this.add.image(w / 2, h / 2, 'campus-background');
+      const scale = Math.max(w / bg.width, h / bg.height);
+      bg.setScale(scale).setDepth(-100);
+    }
     const g = this.add.graphics();
+    // AI-generated academy artwork is the actual world backdrop; keep gameplay actors/UI separate.
+    g.setVisible(false);
 
     // Atmospheric sky and distant academy district.
     g.fillGradientStyle(0x11152b, 0x11152b, 0x25223e, 0x182b37, 1);
@@ -160,6 +171,17 @@ class CampusScene extends Phaser.Scene {
       fontFamily: 'Arial', fontSize: '10px', color: '#fff0d4',
       stroke: '#241a3b', strokeThickness: 3, shadow: { offsetX: 0, offsetY: 2, color: '#120d24', blur: 5, fill: true },
     }).setOrigin(0.5);
+
+    // Visible homeroom marker layered over the generated campus backdrop.
+    const entranceMarker = this.add.graphics().setDepth(30);
+    entranceMarker.lineStyle(3, 0xc8a8ff, 0.95);
+    entranceMarker.strokeCircle(this.homeroomX, this.homeroomY, 20);
+    entranceMarker.fillStyle(0x8f69ff, 0.22);
+    entranceMarker.fillCircle(this.homeroomX, this.homeroomY, 15);
+    this.add.text(this.homeroomX, this.homeroomY - 34, 'CLASS D', {
+      fontFamily: 'Arial', fontSize: '10px', color: '#fff0d4',
+      stroke: '#241a3b', strokeThickness: 3,
+    }).setOrigin(0.5).setDepth(31);
 
     // A classmate NPC for the first social interaction.
     this.npcX = w * 0.5;
