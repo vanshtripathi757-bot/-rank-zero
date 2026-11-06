@@ -11,6 +11,7 @@ class CampusScene extends Phaser.Scene {
   private joystickBase?: Phaser.GameObjects.Arc;
   private joystickKnob?: Phaser.GameObjects.Arc;
   private dialogue?: Phaser.GameObjects.Text;
+  private dialogueTimer?: Phaser.Time.TimerEvent;
   private npcX = 0;
   private npcY = 0;
   private firstMissionComplete = false;
@@ -39,8 +40,7 @@ class CampusScene extends Phaser.Scene {
       bg.setDisplaySize(w, h).setDepth(-100);
     }
     const g = this.add.graphics();
-    // AI-generated academy artwork is the actual world backdrop; keep gameplay actors/UI separate.
-    g.setVisible(false);
+    // This graphics layer is reserved for foreground world markers; keep it visible.
 
     // World backdrop is the generated academy artwork. Keep all gameplay actors
     // (homeroom marker, NPCs, player and controls) as independent game objects.
@@ -169,7 +169,7 @@ class CampusScene extends Phaser.Scene {
       this.cursors = this.input.keyboard.createCursorKeys();
       this.keys = this.input.keyboard.addKeys('W,A,S,D') as Record<string, Phaser.Input.Keyboard.Key>;
     }
-    this.scale.on('resize', () => this.scene.restart());
+    // Phaser.Scale.FIT resizes the canvas without restarting the scene, so mission state is preserved.
   }
 
   private updateJoystick(x: number, y: number) {
@@ -212,7 +212,8 @@ class CampusScene extends Phaser.Scene {
     } else {
       this.dialogue.setText('Chapter 1 complete. Your academy journey begins here.');
     }
-    this.time.delayedCall(3800, () => this.dialogue?.setText(''));
+    this.dialogueTimer?.remove(false);
+    this.dialogueTimer = this.time.delayedCall(3800, () => this.dialogue?.setText(''));
   }
 
   update(_time: number, delta: number) {
