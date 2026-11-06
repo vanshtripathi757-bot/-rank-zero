@@ -24,11 +24,6 @@ class CampusScene extends Phaser.Scene {
 
   constructor() { super('Campus'); }
 
-  private polygon(g: Phaser.GameObjects.Graphics, points: Array<[number, number]>, color: number, alpha = 1) {
-    g.fillStyle(color, alpha);
-    g.fillPoints(points.map(([x, y]) => new Phaser.Geom.Point(x, y)), true);
-  }
-
   preload() {
     this.load.svg('campus-background', '/assets/campus-background.svg');
   }
