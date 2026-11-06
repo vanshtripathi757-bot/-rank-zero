@@ -265,7 +265,6 @@ export default function App() {
   const host = useRef<HTMLDivElement>(null);
   const game = useRef<Phaser.Game | null>(null);
   const [entered, setEntered] = useState(false);
-  const [menu, setMenu] = useState(false);
   const [objective, setObjective] = useState('Meet a classmate in the courtyard');
   const [xp, setXp] = useState(0);
   const [missionComplete, setMissionComplete] = useState(false);
