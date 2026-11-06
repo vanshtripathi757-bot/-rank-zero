@@ -47,136 +47,32 @@ export default class CampusScene extends Phaser.Scene {
     this.sportsComplete = initialXp >= 500;
   }
 
-  preload() {
-    this.load.svg('campus-background', '/assets/campus-background.svg');
-  }
-
   create() {
     const { width: w, height: h } = this.scale;
-    if (this.textures.exists('campus-background')) {
-      const bg = this.add.image(w / 2, h / 2, 'campus-background');
-      bg.setDisplaySize(w, h).setDepth(-100);
-    }
     const g = this.add.graphics();
-    // This graphics layer is reserved for foreground world markers; keep it visible.
-
-    // World backdrop is the generated academy artwork. Keep all gameplay actors
-    // (homeroom marker, NPCs, player and controls) as independent game objects.
+    this.drawCampusWorld(w, h, g);
 
     // Class D homeroom entrance: a visible, interactable destination for onboarding.
     this.homeroomX = w * 0.5;
     this.homeroomY = h * 0.49;
-    g.lineStyle(3, 0xc8a8ff, 0.95);
-    g.strokeCircle(this.homeroomX, this.homeroomY, 23);
-    g.fillStyle(0x8f69ff, 0.16);
-    g.fillCircle(this.homeroomX, this.homeroomY, 17);
-    g.lineStyle(1, 0xffffff, 0.5);
-    g.strokeCircle(this.homeroomX, this.homeroomY, 29);
-    const homeroomPulse = this.add.circle(this.homeroomX, this.homeroomY, 31, 0xc8a8ff, 0).setStrokeStyle(1, 0xe3d5ff, 0.7);
-    this.tweens.add({ targets: homeroomPulse, scale: 1.3, alpha: 0, duration: 1500, repeat: -1, ease: 'Sine.easeOut' });
-    this.add.text(this.homeroomX, this.homeroomY - 62, 'CLASS D · HOMEROOM', {
-      fontFamily: 'Arial', fontSize: '10px', color: '#fff0d4',
-      stroke: '#241a3b', strokeThickness: 3, shadow: { offsetX: 0, offsetY: 2, color: '#120d24', blur: 5, fill: true },
-    }).setOrigin(0.5);
-
-    // Class D orientation classroom: the next story destination after homeroom.
-    this.classroomX = w * 0.5;
-    this.classroomY = h * 0.29;
-    g.lineStyle(2, 0x79d9ff, 0.95);
-    g.strokeRoundedRect(this.classroomX - 34, this.classroomY - 24, 68, 48, 8);
-    g.fillStyle(0x54b9e8, 0.18);
-    g.fillRoundedRect(this.classroomX - 30, this.classroomY - 20, 60, 40, 6);
-    const orientationPulse = this.add.circle(this.classroomX, this.classroomY, 28, 0x79d9ff, 0).setStrokeStyle(1, 0x9be6ff, 0.75);
-    this.tweens.add({ targets: orientationPulse, scale: 1.35, alpha: 0, duration: 1250, repeat: -1, ease: 'Sine.easeOut' });
-    this.add.text(this.classroomX, this.classroomY - 38, 'CLASS D · ORIENTATION', {
-      fontFamily: 'Arial', fontSize: '10px', color: '#d9f5ff',
-      stroke: '#14233c', strokeThickness: 3,
-    }).setOrigin(0.5);
-
-    // Three explorable campus destinations extend the first-day chapter beyond onboarding.
-    const addExploreMarker = (x: number, y: number, label: string, color: number) => {
-      const marker = this.add.circle(x, y, 20, color, 0.12).setStrokeStyle(2, color, 0.9);
-      this.tweens.add({ targets: marker, scale: 1.22, alpha: 0.45, duration: 1350, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
-      this.add.text(x, y - 34, label, {
-        fontFamily: 'Arial', fontSize: '10px', color: '#ffffff',
-        stroke: '#17162b', strokeThickness: 3,
-      }).setOrigin(0.5);
-    };
-    this.libraryX = w * 0.2; this.libraryY = h * 0.34;
-    this.cafeteriaX = w * 0.8; this.cafeteriaY = h * 0.34;
-    this.sportsX = w * 0.2; this.sportsY = h * 0.69;
-    addExploreMarker(this.libraryX, this.libraryY, 'LIBRARY', 0x9bdbff);
-    addExploreMarker(this.cafeteriaX, this.cafeteriaY, 'CAFETERIA', 0xffc77d);
-    addExploreMarker(this.sportsX, this.sportsY, 'SPORTS COURT', 0x8ce0b8);
-
-    // Keep one clear destination marker; avoid duplicated homeroom labels.
-
-    // A classmate NPC for the first social interaction.
-    this.npcX = w * 0.5;
-    this.npcY = h * 0.61;
-    const npc = this.add.container(this.npcX, this.npcY);
-    const npcArt = this.add.graphics();
-    npcArt.fillStyle(0x11101f, 0.4);
-    npcArt.fillEllipse(0, 13, 28, 10);
-    npcArt.fillStyle(0x344d72, 1);
-    npcArt.fillRoundedRect(-10, -1, 20, 27, 5);
-    npcArt.fillStyle(0xe8e4f1, 1);
-    npcArt.fillTriangle(-7, 1, 0, 9, 7, 1);
-    npcArt.fillStyle(0xf0c9b7, 1);
-    npcArt.fillCircle(0, -12, 9);
-    npcArt.fillStyle(0x49354a, 1);
-    npcArt.fillEllipse(0, -19, 20, 10);
-    npc.add(npcArt).setDepth(this.npcY);
-    this.tweens.add({ targets: npc, y: this.npcY - 3, duration: 1450, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
-    this.add.text(this.npcX, this.npcY - 43, 'CLASSMATE', {
+    g.lineStyle(3,
+…[1 chars truncated — re-run with head/grep/tail for full output]…
+his.add.text(this.npcX, this.npcY - 53, 'CLASSMATE', {
       fontFamily: 'Arial', fontSize: '10px', color: '#ffffff',
       stroke: '#241a3b', strokeThickness: 3,
-      shadow: { offsetX: 0, offsetY: 2, color: '#120d24', blur: 5, fill: true },
     }).setOrigin(0.5);
 
-    // Teacher NPC near the homeroom direction marker.
     this.teacherX = w * 0.78;
     this.teacherY = h * 0.61;
-    const teacher = this.add.container(this.teacherX, this.teacherY);
-    const teacherArt = this.add.graphics();
-    teacherArt.fillStyle(0x10101d, 0.38);
-    teacherArt.fillEllipse(0, 14, 31, 11);
-    teacherArt.fillStyle(0x292c43, 1);
-    teacherArt.fillRoundedRect(-12, -2, 24, 31, 4);
-    teacherArt.fillStyle(0xd8d8e5, 1);
-    teacherArt.fillRect(-8, 2, 16, 5);
-    teacherArt.fillStyle(0xe9c6b5, 1);
-    teacherArt.fillCircle(0, -14, 10);
-    teacherArt.fillStyle(0x353047, 1);
-    teacherArt.fillEllipse(0, -22, 22, 9);
-    teacher.add(teacherArt).setDepth(this.teacherY);
+    const teacher = this.makeStudent(this.teacherX, this.teacherY, 0x34364f, 0x343047, 0xd9b49e, true);
     this.tweens.add({ targets: teacher, y: this.teacherY - 2, duration: 1750, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
-    this.add.text(this.teacherX, this.teacherY - 46, 'TEACHER', {
+    this.add.text(this.teacherX, this.teacherY - 55, 'TEACHER', {
       fontFamily: 'Arial', fontSize: '10px', color: '#fff4dc',
       stroke: '#241a3b', strokeThickness: 3,
-      shadow: { offsetX: 0, offsetY: 2, color: '#120d24', blur: 5, fill: true },
     }).setOrigin(0.5);
 
-    // Player shadow and a simple layered academy-uniform character.
     const px = w * 0.5, py = h * 0.78;
-    const shadow = this.add.ellipse(0, 15, 34, 13, 0x08101b, 0.48);
-    const avatar = this.add.graphics();
-    avatar.fillStyle(0x29223d, 1); avatar.fillRoundedRect(-12, -3, 24, 30, 7);
-    avatar.fillStyle(0xeee9f7, 1); avatar.fillPoints([
-      new Phaser.Geom.Point(-9, -1), new Phaser.Geom.Point(0, 9), new Phaser.Geom.Point(9, -1),
-      new Phaser.Geom.Point(7, 22), new Phaser.Geom.Point(-7, 22),
-    ], true);
-    avatar.fillStyle(0x5d4b91, 1); avatar.fillRect(-3, 1, 6, 20);
-    avatar.fillStyle(0x1c1a2e, 1); avatar.fillRoundedRect(-10, 23, 8, 10, 3); avatar.fillRoundedRect(2, 23, 8, 10, 3);
-    avatar.fillStyle(0xf2cdbd, 1); avatar.fillCircle(0, -13, 10);
-    avatar.fillStyle(0x292039, 1); avatar.fillEllipse(0, -20, 21, 12);
-    avatar.fillTriangle(-10, -18, -5, -28, 1, -20);
-    avatar.fillStyle(0x3a2b4d, 1); avatar.fillRect(-2, -14, 2, 2); avatar.fillRect(4, -14, 2, 2);
-    const character = this.add.container(px, py, [shadow, avatar]).setDepth(py);
-    this.player = character;
-    this.tweens.add({ targets: avatar, y: 1.5, duration: 1050, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
-    this.tweens.add({ targets: shadow, scaleX: 0.92, alpha: 0.34, duration: 1050, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
-
+    this.player = this.makeStudent(px, py, 0x33294c, 0x201a31, 0xf0c8b5, false, true).setDepth(py);
     // Mobile virtual joystick and TALK button.
     this.joystickBase = this.add.circle(82, h - 88, 46, 0x0b1024, 0.55)
       .setStrokeStyle(2, 0xb8a3ff, 0.7).setDepth(1000).setVisible(false);
@@ -219,6 +115,128 @@ export default class CampusScene extends Phaser.Scene {
       this.keys = this.input.keyboard.addKeys('W,A,S,D') as Record<string, Phaser.Input.Keyboard.Key>;
     }
     // Phaser.Scale.FIT resizes the canvas without restarting the scene, so mission state is preserved.
+  }
+
+  private drawCampusWorld(w: number, h: number, g: Phaser.GameObjects.Graphics) {
+    // Entire academy environment is drawn in-engine: layered courtyards, paths,
+    // architecture, landscaping and readable landmarks. No generated backdrop.
+    g.fillStyle(0x789b78, 1); g.fillRect(0, 0, w, h);
+    g.fillStyle(0x86a982, 0.7); g.fillRect(0, 0, w, h * 0.18);
+    // Distant tree line and soft canopy clusters.
+    for (let i = 0; i < 34; i++) {
+      const x = (i * 137) % w; const y = 34 + (i % 4) * 12;
+      g.fillStyle(i % 3 === 0 ? 0x52785e : 0x608765, 0.95);
+      g.fillCircle(x, y, 24 + (i % 3) * 5);
+      g.fillStyle(0xa0bd8c, 0.2); g.fillCircle(x - 7, y - 8, 11);
+    }
+    // Main stone promenade and branching paths.
+    g.fillStyle(0x667f79, 0.35); g.fillRoundedRect(w * 0.455, 0, w * 0.09, h, 8);
+    g.fillStyle(0xc9c4ad, 1); g.fillRoundedRect(w * 0.47, 0, w * 0.06, h, 5);
+    g.fillStyle(0xe0d9c2, 0.8); g.fillRoundedRect(w * 0.08, h * 0.38, w * 0.84, h * 0.075, 9);
+    g.fillRoundedRect(w * 0.08, h * 0.67, w * 0.84, h * 0.055, 8);
+    g.fillRoundedRect(w * 0.13, h * 0.29, w * 0.74, h * 0.045, 7);
+    // Courtyard paving tiles.
+    g.lineStyle(1, 0xa59f8b, 0.24);
+    for (let x = 30; x < w; x += 54) g.lineBetween(x, h * 0.39, x, h * 0.445);
+    for (let x = 30; x < w; x += 54) g.lineBetween(x, h * 0.67, x, h * 0.725);
+    // Main academy building at the northern edge.
+    g.fillStyle(0x4a4c60, 0.32); g.fillRoundedRect(w * 0.29, h * 0.035, w * 0.42, h * 0.2, 10);
+    g.fillStyle(0xddd7c8, 1); g.fillRoundedRect(w * 0.3, h * 0.02, w * 0.4, h * 0.19, 8);
+    g.fillStyle(0x555c70, 1); g.fillRoundedRect(w * 0.285, h * 0.015, w * 0.43, h * 0.045, 6);
+    g.fillStyle(0x9bafad, 1); g.fillRoundedRect(w * 0.465, h * 0.1, w * 0.07, h * 0.11, 4);
+    g.fillStyle(0x3d5263, 1); g.fillRect(w * 0.485, h * 0.13, w * 0.03, h * 0.08);
+    for (let i = 0; i < 7; i++) {
+      const x = w * 0.33 + i * w * 0.055;
+      g.fillStyle(0x7b9a9a, 1); g.fillRoundedRect(x, h * 0.08, w * 0.027, h * 0.07, 4);
+      g.lineStyle(2, 0xf0e9d9, 0.9); g.lineBetween(x + w * 0.0135, h * 0.08, x + w * 0.0135, h * 0.15);
+    }
+    // Library, cafeteria and sports pavilion, each with distinct silhouettes.
+    this.drawBuilding(g, w * 0.055, h * 0.19, w * 0.19, h * 0.15, 0x9caeb1, 0x526c7c, 'LIBRARY');
+    this.drawBuilding(g, w * 0.755, h * 0.19, w * 0.19, h * 0.15, 0xd6b98f, 0x7a5944, 'CAFETERIA');
+    this.drawBuilding(g, w * 0.055, h * 0.76, w * 0.21, h * 0.16, 0xa8b6a5, 0x49675d, 'SPORTS');
+    // Sports court markings.
+    g.fillStyle(0x668d82, 1); g.fillRoundedRect(w * 0.3, h * 0.78, w * 0.28, h * 0.16, 9);
+    g.lineStyle(2, 0xe4e9d6, 0.85); g.strokeRoundedRect(w * 0.31, h * 0.79, w * 0.26, h * 0.14, 5);
+    g.lineBetween(w * 0.44, h * 0.79, w * 0.44, h * 0.93);
+    g.strokeCircle(w * 0.44, h * 0.86, 19);
+    // Pond, fountain and stone edging in the eastern garden.
+    g.fillStyle(0x4d716d, 0.4); g.fillEllipse(w * 0.83, h * 0.79, w * 0.19, h * 0.13);
+    g.fillStyle(0x6aa6a5, 1); g.fillEllipse(w * 0.83, h * 0.78, w * 0.17, h * 0.105);
+    g.lineStyle(3, 0xe2d9c1, 0.9); g.strokeEllipse(w * 0.83, h * 0.78, w * 0.18, h * 0.115);
+    g.fillStyle(0xc9d8c7, 0.85); g.fillCircle(w * 0.83, h * 0.78, 9);
+    g.fillStyle(0x8dc9c2, 0.8); g.fillCircle(w * 0.83, h * 0.78, 5);
+    // Decorative trees with trunks, layered foliage and flower beds.
+    for (const [x, y, r] of [[0.09,0.49,18],[0.23,0.52,15],[0.71,0.49,19],[0.94,0.53,18],[0.29,0.72,14],[0.68,0.72,15],[0.92,0.68,16],[0.14,0.91,15],[0.61,0.91,14]] as number[][]) {
+      g.fillStyle(0x765b48, 1); g.fillRoundedRect(w*x-4, h*y, 8, 25, 3);
+      g.fillStyle(0x426a50, 1); g.fillCircle(w*x, h*y-8, r);
+      g.fillStyle(0x6f9868, 1); g.fillCircle(w*x-7, h*y-13, r*0.65);
+      g.fillStyle(0x9dbb7b, 0.65); g.fillCircle(w*x-10, h*y-18, r*0.28);
+    }
+    for (let i = 0; i < 28; i++) {
+      const x = ((i * 83) % Math.floor(w - 30)) + 15; const y = h * (0.47 + (i % 5) * 0.095);
+      g.fillStyle(i % 2 ? 0xd9b6cf : 0xe8d29a, 0.85); g.fillCircle(x, y, 2.4);
+    }
+    // Benches and lampposts add scale and lived-in detail.
+    for (const x of [w*0.36,w*0.64]) {
+      g.fillStyle(0x665247, 1); g.fillRoundedRect(x-18,h*0.53,36,7,3);
+      g.fillRect(x-14,h*0.54,4,10); g.fillRect(x+10,h*0.54,4,10);
+    }
+    for (const x of [w*0.27,w*0.73]) {
+      g.fillStyle(0x4a5054, 1); g.fillRect(x-2,h*0.44,4,33);
+      g.fillStyle(0xf4e4a9, 0.9); g.fillCircle(x,h*0.44,6);
+      g.fillStyle(0xffefc5, 0.16); g.fillCircle(x,h*0.44,13);
+    }
+    // Soft foreground vignette to frame the playable space.
+    g.fillStyle(0x172b2b, 0.08); g.fillRect(0, h*0.94, w, h*0.06);
+  }
+
+  private drawBuilding(g: Phaser.GameObjects.Graphics, x: number, y: number, width: number, height: number, wall: number, roof: number, label: string) {
+    g.fillStyle(0x263d3d, 0.24); g.fillRoundedRect(x+5,y+7,width,height,7);
+    g.fillStyle(wall, 1); g.fillRoundedRect(x,y+10,width,height-10,6);
+    g.fillStyle(roof, 1); g.fillRoundedRect(x-5,y,width+10,18,5);
+    g.fillStyle(0x465e68, 1); g.fillRoundedRect(x+width*0.39,y+height*0.43,width*0.22,height*0.57,3);
+    for(let i=0;i<3;i++) {
+      g.fillStyle(0x789da0,1); g.fillRoundedRect(x+12+i*(width-34)/3,y+25,(width-48)/3,24,3);
+      g.lineStyle(1,0xe9e4d2,0.8); g.strokeRect(x+12+i*(width-34)/3,y+25,(width-48)/3,24);
+    }
+    this.add.text(x+width/2,y+height+7,label,{fontFamily:'Arial',fontSize:'9px',fontStyle:'bold',color:'#f5f0df',stroke:'#253c39',strokeThickness:3}).setOrigin(0.5);
+  }
+
+  private makeStudent(x: number, y: number, jacket: number, hair: number, skin: number, teacher = false, player = false) {
+    const shadow = this.add.ellipse(0, 18, 33, 12, 0x17251f, 0.35);
+    const art = this.add.graphics();
+    // Legs and polished shoes.
+    art.fillStyle(0x272b3d,1); art.fillRoundedRect(-9,18,7,14,3); art.fillRoundedRect(2,18,7,14,3);
+    art.fillStyle(0x1d202c,1); art.fillRoundedRect(-11,29,10,5,2); art.fillRoundedRect(1,29,10,5,2);
+    // Blazer silhouette, shirt and collar.
+    art.fillStyle(jacket,1); art.fillRoundedRect(-14,-5,28,28,7);
+    art.fillStyle(0xf2eee5,1); art.fillTriangle(-8,-3,0,8,8,-3); art.fillTriangle(-8,-3,-5,13,0,8); art.fillTriangle(8,-3,5,13,0,8);
+    art.fillStyle(teacher ? 0x9a6b4e : 0x7863b7,1); art.fillTriangle(-2,2,2,2,1,16); art.fillTriangle(-2,2,1,16,-1,18);
+    art.fillStyle(0xd6b46f,1); art.fillCircle(-9,5,1.8);
+    // Neck and face.
+    art.fillStyle(skin,1); art.fillRoundedRect(-4,-13,8,10,3); art.fillEllipse(0,-23,21,25);
+    // Ears and facial features.
+    art.fillStyle(skin,1); art.fillCircle(-10,-23,3); art.fillCircle(10,-23,3);
+    art.fillStyle(0x302c39,1); art.fillEllipse(-4,-23,2.2,3.2); art.fillEllipse(4,-23,2.2,3.2);
+    art.lineStyle(1,0x9b655c,0.8); art.lineBetween(-1,-17,2,-17);
+    art.fillStyle(0xe89a91,0.38); art.fillCircle(-7,-19,2); art.fillCircle(7,-19,2);
+    // Distinctive swept fringe and layered hair silhouette.
+    art.fillStyle(hair,1); art.fillEllipse(0,-32,25,13);
+    art.fillTriangle(-12,-29,-10,-43,0,-32); art.fillTriangle(-4,-29,2,-45,5,-29);
+    art.fillTriangle(2,-29,12,-40,10,-25); art.fillTriangle(-11,-25,-15,-31,-12,-17);
+    art.fillStyle(0xffffff,0.16); art.fillEllipse(-5,-38,8,3);
+    if (teacher) { art.lineStyle(2,0xd7d1c8,0.95); art.strokeRoundedRect(-12,-25,9,7,3); art.strokeRoundedRect(3,-25,9,7,3); art.lineBetween(-3,-22,3,-22); }
+    if (player) {
+      art.lineStyle(2,0xe5d8ff,0.9); art.strokeRoundedRect(-15,-6,30,30,7);
+      art.fillStyle(0xe3c77e,1); art.fillCircle(9,1,2.2);
+    }
+    const character = this.add.container(x,y,[shadow,art]);
+    character.setSize(32,48);
+    if (player) {
+      this.tweens.add({targets:art,y:1.5,duration:1050,yoyo:true,repeat:-1,ease:'Sine.easeInOut'});
+      this.tweens.add({targets:shadow,scaleX:0.92,alpha:0.27,duration:1050,yoyo:true,repeat:-1,ease:'Sine.easeInOut'});
+    }
+    return character;
   }
 
   private updateJoystick(x: number, y: number) {
