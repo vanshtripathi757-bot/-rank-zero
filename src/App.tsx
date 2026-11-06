@@ -24,11 +24,6 @@ class CampusScene extends Phaser.Scene {
 
   constructor() { super('Campus'); }
 
-  private polygon(g: Phaser.GameObjects.Graphics, points: Array<[number, number]>, color: number, alpha = 1) {
-    g.fillStyle(color, alpha);
-    g.fillPoints(points.map(([x, y]) => new Phaser.Geom.Point(x, y)), true);
-  }
-
   preload() {
     this.load.svg('campus-background', '/assets/campus-background.svg');
   }
@@ -48,17 +43,12 @@ class CampusScene extends Phaser.Scene {
     // Class D homeroom entrance: a visible, interactable destination for onboarding.
     this.homeroomX = w * 0.5;
     this.homeroomY = h * 0.49;
-    g.fillStyle(0x101628, 0.55);
-    g.fillRoundedRect(this.homeroomX - 72, this.homeroomY - 48, 144, 74, 5);
-    g.fillStyle(0x77708f, 1);
-    g.fillRect(this.homeroomX - 65, this.homeroomY - 43, 130, 8);
-    g.fillStyle(0x25243d, 1);
-    g.fillRoundedRect(this.homeroomX - 21, this.homeroomY - 36, 42, 62, 4);
-    g.fillStyle(0xc8a8ff, 0.9);
-    g.fillCircle(this.homeroomX + 12, this.homeroomY - 5, 3);
-    g.fillStyle(0xe5d5a7, 0.9);
-    g.fillRect(this.homeroomX - 58, this.homeroomY - 32, 24, 24);
-    g.fillRect(this.homeroomX + 34, this.homeroomY - 32, 24, 24);
+    g.lineStyle(3, 0xc8a8ff, 0.95);
+    g.strokeCircle(this.homeroomX, this.homeroomY, 23);
+    g.fillStyle(0x8f69ff, 0.16);
+    g.fillCircle(this.homeroomX, this.homeroomY, 17);
+    g.lineStyle(1, 0xffffff, 0.5);
+    g.strokeCircle(this.homeroomX, this.homeroomY, 29);
     this.add.text(this.homeroomX, this.homeroomY - 62, 'CLASS D · HOMEROOM', {
       fontFamily: 'Arial', fontSize: '10px', color: '#fff0d4',
       stroke: '#241a3b', strokeThickness: 3, shadow: { offsetX: 0, offsetY: 2, color: '#120d24', blur: 5, fill: true },
