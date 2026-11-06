@@ -13,6 +13,7 @@ class CampusScene extends Phaser.Scene {
   private dialogue?: Phaser.GameObjects.Text;
   private npcX = 0;
   private npcY = 0;
+  private firstMissionComplete = false;
 
   constructor() { super('Campus'); }
 
@@ -233,10 +234,17 @@ class CampusScene extends Phaser.Scene {
   private interact() {
     if (!this.player || !this.dialogue) return;
     const distance = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.npcX, this.npcY);
-    this.dialogue.setText(distance < 125
-      ? 'Classmate: Welcome to Foundation Campus, new student!'
-      : 'Move closer to the classmate to talk.');
-    this.time.delayedCall(3000, () => this.dialogue?.setText(''));
+    if (distance >= 125) {
+      this.dialogue.setText('Move closer to the classmate to talk.');
+      this.time.delayedCall(2500, () => this.dialogue?.setText(''));
+      return;
+    }
+    this.dialogue.setText('Classmate: Welcome to Foundation Campus, new student!');
+    if (!this.firstMissionComplete) {
+      this.firstMissionComplete = true;
+      this.game.events.emit('mission-complete', { xp: 50, nextObjective: 'Find your Class D homeroom' });
+    }
+    this.time.delayedCall(3500, () => this.dialogue?.setText(''));
   }
 
   update(_time: number, delta: number) {
@@ -270,6 +278,9 @@ export default function App() {
   const game = useRef<Phaser.Game | null>(null);
   const [entered, setEntered] = useState(false);
   const [menu, setMenu] = useState(false);
+  const [objective, setObjective] = useState('Meet a classmate in the courtyard');
+  const [xp, setXp] = useState(0);
+  const [missionComplete, setMissionComplete] = useState(false);
 
   useEffect(() => {
     if (!entered || !host.current || game.current) return;
@@ -278,7 +289,17 @@ export default function App() {
       scale: { mode: Phaser.Scale.RESIZE, autoCenter: Phaser.Scale.CENTER_BOTH, width: 1280, height: 720 },
       scene: [CampusScene],
     });
-    return () => { game.current?.destroy(true); game.current = null; };
+    const onMissionComplete = (result: { xp: number; nextObjective: string }) => {
+      setXp(current => current + result.xp);
+      setMissionComplete(true);
+      setObjective(result.nextObjective);
+    };
+    game.current.events.on('mission-complete', onMissionComplete);
+    return () => {
+      game.current?.events.off('mission-complete', onMissionComplete);
+      game.current?.destroy(true);
+      game.current = null;
+    };
   }, [entered]);
 
   return <main className="shell">
@@ -296,11 +317,11 @@ export default function App() {
     </section> : <section className="world">
       <div className="stage" ref={host}/>
       <header className="hud">
-        <div className="profile"><b>D</b><span>NEW STUDENT<small>LEVEL 01 · CLASS D</small></span></div>
+        <div className="profile"><b>D</b><span>NEW STUDENT<small>LEVEL 01 · CLASS D · {xp} XP</small></span></div>
         <div className="zone">FOUNDATION CAMPUS</div>
         <button className="menu-toggle" onClick={() => setMenu(v => !v)}>☰</button>
       </header>
-      <div className="mission"><small>CURRENT OBJECTIVE</small><b>Explore the academy courtyard</b></div>
+      <div className={`mission${missionComplete ? " completed" : ""}`}><small>{missionComplete ? "MISSION COMPLETE · +50 XP" : "CURRENT OBJECTIVE"}</small><b>{objective}</b></div>
       {menu && <nav className="menu">{['Character','Ranking','Missions','Inventory','Friends','Close menu'].map(x => <button key={x} onClick={() => setMenu(false)}>{x}</button>)}</nav>}
       <div className="prototype">LOCAL GAME PREVIEW · ONLINE FEATURES IN DEVELOPMENT</div>
     </section>}
