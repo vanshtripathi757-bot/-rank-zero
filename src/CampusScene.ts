@@ -485,4 +485,7 @@ export default class CampusScene extends Phaser.Scene {
       if (this.playerArms) this.playerArms.rotation = Phaser.Math.Linear(this.playerArms.rotation, 0, 0.25);
     }
     this.player.x = Phaser.Math.Clamp(this.player.x, 22, this.scale.width - 22);
-    this.player.y = Phaser.Math.Clamp(this.player.y, this.scale.height * 0.19, this.scale.heigh
+    this.player.y = Phaser.Math.Clamp(this.player.y, this.scale.height * 0.19, this.scale.height - 42);
+    this.player.setDepth(this.player.y);
+  }
+}
