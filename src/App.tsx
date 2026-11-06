@@ -158,7 +158,7 @@ class CampusScene extends Phaser.Scene {
     g.fillRect(this.homeroomX + 34, this.homeroomY - 32, 24, 24);
     this.add.text(this.homeroomX, this.homeroomY - 62, 'CLASS D · HOMEROOM', {
       fontFamily: 'Arial', fontSize: '10px', color: '#fff0d4',
-      backgroundColor: '#17152dcc', padding: { x: 7, y: 4 },
+      stroke: '#241a3b', strokeThickness: 3, shadow: { offsetX: 0, offsetY: 2, color: '#120d24', blur: 5, fill: true },
     }).setOrigin(0.5);
 
     // A classmate NPC for the first social interaction.
@@ -177,9 +177,10 @@ class CampusScene extends Phaser.Scene {
     npcArt.fillStyle(0x49354a, 1);
     npcArt.fillEllipse(0, -19, 20, 10);
     npc.add(npcArt).setDepth(this.npcY);
-    this.add.text(this.npcX, this.npcY - 40, 'CLASSMATE', {
-      fontFamily: 'Arial', fontSize: '10px', color: '#f1eaff',
-      backgroundColor: '#17152dcc', padding: { x: 6, y: 4 },
+    this.add.text(this.npcX, this.npcY - 43, 'CLASSMATE', {
+      fontFamily: 'Arial', fontSize: '10px', color: '#ffffff',
+      stroke: '#241a3b', strokeThickness: 3,
+      shadow: { offsetX: 0, offsetY: 2, color: '#120d24', blur: 5, fill: true },
     }).setOrigin(0.5);
 
     // Teacher NPC near the homeroom direction marker.
@@ -198,9 +199,10 @@ class CampusScene extends Phaser.Scene {
     teacherArt.fillStyle(0x353047, 1);
     teacherArt.fillEllipse(0, -22, 22, 9);
     teacher.add(teacherArt).setDepth(this.teacherY);
-    this.add.text(this.teacherX, this.teacherY - 44, 'TEACHER', {
-      fontFamily: 'Arial', fontSize: '10px', color: '#fff0d4',
-      backgroundColor: '#17152dcc', padding: { x: 6, y: 4 },
+    this.add.text(this.teacherX, this.teacherY - 46, 'TEACHER', {
+      fontFamily: 'Arial', fontSize: '10px', color: '#fff4dc',
+      stroke: '#241a3b', strokeThickness: 3,
+      shadow: { offsetX: 0, offsetY: 2, color: '#120d24', blur: 5, fill: true },
     }).setOrigin(0.5);
 
     // Player shadow and a simple layered academy-uniform character.
