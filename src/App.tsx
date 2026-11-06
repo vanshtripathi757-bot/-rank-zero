@@ -21,6 +21,10 @@ class CampusScene extends Phaser.Scene {
   private homeroomX = 0;
   private homeroomY = 0;
   private homeroomMissionComplete = false;
+  private classroomX = 0;
+  private classroomY = 0;
+  private orientationStarted = false;
+  private orientationComplete = false;
 
   constructor() { super('Campus'); }
 
@@ -52,6 +56,18 @@ class CampusScene extends Phaser.Scene {
     this.add.text(this.homeroomX, this.homeroomY - 62, 'CLASS D · HOMEROOM', {
       fontFamily: 'Arial', fontSize: '10px', color: '#fff0d4',
       stroke: '#241a3b', strokeThickness: 3, shadow: { offsetX: 0, offsetY: 2, color: '#120d24', blur: 5, fill: true },
+    }).setOrigin(0.5);
+
+    // Class D orientation classroom: the next story destination after homeroom.
+    this.classroomX = w * 0.5;
+    this.classroomY = h * 0.29;
+    g.lineStyle(2, 0x79d9ff, 0.95);
+    g.strokeRoundedRect(this.classroomX - 34, this.classroomY - 24, 68, 48, 8);
+    g.fillStyle(0x54b9e8, 0.18);
+    g.fillRoundedRect(this.classroomX - 30, this.classroomY - 20, 60, 40, 6);
+    this.add.text(this.classroomX, this.classroomY - 38, 'CLASS D · ORIENTATION', {
+      fontFamily: 'Arial', fontSize: '10px', color: '#d9f5ff',
+      stroke: '#14233c', strokeThickness: 3,
     }).setOrigin(0.5);
 
     // Keep one clear destination marker; avoid duplicated homeroom labels.
@@ -179,6 +195,7 @@ class CampusScene extends Phaser.Scene {
     const classmateDistance = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.npcX, this.npcY);
     const teacherDistance = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.teacherX, this.teacherY);
     const homeroomDistance = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.homeroomX, this.homeroomY);
+    const classroomDistance = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.classroomX, this.classroomY);
     if (!this.firstMissionComplete && classmateDistance < 125) {
       this.dialogue.setText('Classmate: Welcome! The teacher near the east path can guide you to Class D.');
       this.firstMissionComplete = true;
@@ -190,8 +207,16 @@ class CampusScene extends Phaser.Scene {
     } else if (this.teacherMissionComplete && !this.homeroomMissionComplete && homeroomDistance < 105) {
       this.dialogue.setText('You entered Class D. Your first lesson is about to begin. Welcome to the academy.');
       this.homeroomMissionComplete = true;
-      this.game.events.emit('mission-complete', { xp: 100, nextObjective: 'Chapter 1 complete — await your first lesson' });
-    } else if (classmateDistance >= 125 && teacherDistance >= 125 && homeroomDistance >= 105) {
+      this.game.events.emit('mission-complete', { xp: 100, nextObjective: 'Go to the Class D orientation room' });
+    } else if (this.homeroomMissionComplete && !this.orientationStarted && classroomDistance < 110) {
+      this.dialogue.setText('Instructor: Welcome to orientation. Learn the academy rules, class system, and campus code. Your first day starts now.');
+      this.orientationStarted = true;
+      this.game.events.emit('mission-complete', { xp: 50, nextObjective: 'Speak to the instructor again to complete orientation' });
+    } else if (this.orientationStarted && !this.orientationComplete && classroomDistance < 110) {
+      this.dialogue.setText('Orientation complete. You are officially registered as a Class D student. Your campus access is now active.');
+      this.orientationComplete = true;
+      this.game.events.emit('mission-complete', { xp: 100, nextObjective: 'Explore the Foundation Campus' });
+    } else if (classmateDistance >= 125 && teacherDistance >= 125 && homeroomDistance >= 105 && classroomDistance >= 110) {
       this.dialogue.setText('Move closer to a nearby character or the Class D entrance to interact.');
     } else if (!this.firstMissionComplete) {
       this.dialogue.setText('Classmate: Come closer and say hello.');
@@ -199,6 +224,10 @@ class CampusScene extends Phaser.Scene {
       this.dialogue.setText('Teacher: I will be waiting near the east path.');
     } else if (!this.homeroomMissionComplete) {
       this.dialogue.setText('Class D: Move to the marked homeroom entrance and press TALK.');
+    } else if (!this.orientationStarted) {
+      this.dialogue.setText('Class D: Head to the blue orientation marker near the upper courtyard.');
+    } else if (!this.orientationComplete) {
+      this.dialogue.setText('Instructor: Press TALK again here when you are ready to finish orientation.');
     } else {
       this.dialogue.setText('Chapter 1 complete. Your academy journey begins here.');
     }
@@ -227,7 +256,7 @@ class CampusScene extends Phaser.Scene {
       }
     }
     this.player.x = Phaser.Math.Clamp(this.player.x, 22, this.scale.width - 22);
-    this.player.y = Phaser.Math.Clamp(this.player.y, this.scale.height * 0.47, this.scale.height - 42);
+    this.player.y = Phaser.Math.Clamp(this.player.y, this.scale.height * 0.19, this.scale.height - 42);
     this.player.setDepth(this.player.y);
   }
 }
