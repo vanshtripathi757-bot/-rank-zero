@@ -10,8 +10,6 @@ class CampusScene extends Phaser.Scene {
   private moveY = 0;
   private joystickBase?: Phaser.GameObjects.Arc;
   private joystickKnob?: Phaser.GameObjects.Arc;
-  private talkButton?: Phaser.GameObjects.Arc;
-  private talkText?: Phaser.GameObjects.Text;
   private dialogue?: Phaser.GameObjects.Text;
   private npcX = 0;
   private npcY = 0;
@@ -181,9 +179,9 @@ class CampusScene extends Phaser.Scene {
       .setStrokeStyle(2, 0xb8a3ff, 0.7).setDepth(1000).setVisible(false);
     this.joystickKnob = this.add.circle(82, h - 88, 20, 0x9a7bff, 0.9)
       .setStrokeStyle(2, 0xffffff, 0.8).setDepth(1001).setVisible(false);
-    this.talkButton = this.add.circle(w - 70, h - 88, 36, 0x7554d9, 0.9)
+    this.add.circle(w - 70, h - 88, 36, 0x7554d9, 0.9)
       .setStrokeStyle(2, 0xe4d9ff, 0.9).setDepth(1000);
-    this.talkText = this.add.text(w - 70, h - 88, 'TALK', {
+    this.add.text(w - 70, h - 88, 'TALK', {
       fontFamily: 'Arial', fontSize: '11px', color: '#ffffff', fontStyle: 'bold',
     }).setOrigin(0.5).setDepth(1001);
     this.dialogue = this.add.text(w / 2, h - 155, '', {
