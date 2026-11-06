@@ -14,6 +14,9 @@ class CampusScene extends Phaser.Scene {
   private npcX = 0;
   private npcY = 0;
   private firstMissionComplete = false;
+  private teacherX = 0;
+  private teacherY = 0;
+  private teacherMissionComplete = false;
 
   constructor() { super('Campus'); }
 
@@ -157,6 +160,27 @@ class CampusScene extends Phaser.Scene {
       backgroundColor: '#17152dcc', padding: { x: 6, y: 4 },
     }).setOrigin(0.5);
 
+    // Teacher NPC near the homeroom direction marker.
+    this.teacherX = w * 0.78;
+    this.teacherY = h * 0.61;
+    const teacher = this.add.container(this.teacherX, this.teacherY);
+    const teacherArt = this.add.graphics();
+    teacherArt.fillStyle(0x10101d, 0.38);
+    teacherArt.fillEllipse(0, 14, 31, 11);
+    teacherArt.fillStyle(0x292c43, 1);
+    teacherArt.fillRoundedRect(-12, -2, 24, 31, 4);
+    teacherArt.fillStyle(0xd8d8e5, 1);
+    teacherArt.fillRect(-8, 2, 16, 5);
+    teacherArt.fillStyle(0xe9c6b5, 1);
+    teacherArt.fillCircle(0, -14, 10);
+    teacherArt.fillStyle(0x353047, 1);
+    teacherArt.fillEllipse(0, -22, 22, 9);
+    teacher.add(teacherArt).setDepth(this.teacherY);
+    this.add.text(this.teacherX, this.teacherY - 44, 'TEACHER', {
+      fontFamily: 'Arial', fontSize: '10px', color: '#fff0d4',
+      backgroundColor: '#17152dcc', padding: { x: 6, y: 4 },
+    }).setOrigin(0.5);
+
     // Player shadow and a simple layered academy-uniform character.
     const px = w * 0.5, py = h * 0.78;
     const shadow = this.add.ellipse(0, 15, 34, 13, 0x08101b, 0.48);
@@ -233,18 +257,26 @@ class CampusScene extends Phaser.Scene {
 
   private interact() {
     if (!this.player || !this.dialogue) return;
-    const distance = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.npcX, this.npcY);
-    if (distance >= 125) {
-      this.dialogue.setText('Move closer to the classmate to talk.');
-      this.time.delayedCall(2500, () => this.dialogue?.setText(''));
-      return;
-    }
-    this.dialogue.setText('Classmate: Welcome to Foundation Campus, new student!');
-    if (!this.firstMissionComplete) {
+    const classmateDistance = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.npcX, this.npcY);
+    const teacherDistance = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.teacherX, this.teacherY);
+    if (!this.firstMissionComplete && classmateDistance < 125) {
+      this.dialogue.setText('Classmate: Welcome! The teacher near the east path can guide you to Class D.');
       this.firstMissionComplete = true;
-      this.game.events.emit('mission-complete', { xp: 50, nextObjective: 'Find your Class D homeroom' });
+      this.game.events.emit('mission-complete', { xp: 50, nextObjective: 'Find the teacher near the east path' });
+    } else if (this.firstMissionComplete && !this.teacherMissionComplete && teacherDistance < 125) {
+      this.dialogue.setText('Teacher: Welcome to Class D. Your homeroom is ready. Follow the central path.');
+      this.teacherMissionComplete = true;
+      this.game.events.emit('mission-complete', { xp: 50, nextObjective: 'Reach the central homeroom entrance' });
+    } else if (classmateDistance >= 125 && teacherDistance >= 125) {
+      this.dialogue.setText('Move closer to a nearby character to interact.');
+    } else if (!this.firstMissionComplete) {
+      this.dialogue.setText('Classmate: Come closer and say hello.');
+    } else if (!this.teacherMissionComplete) {
+      this.dialogue.setText('Teacher: I will be waiting near the east path.');
+    } else {
+      this.dialogue.setText('Teacher: Your Class D homeroom is along the central path.');
     }
-    this.time.delayedCall(3500, () => this.dialogue?.setText(''));
+    this.time.delayedCall(3800, () => this.dialogue?.setText(''));
   }
 
   update(_time: number, delta: number) {
@@ -281,6 +313,7 @@ export default function App() {
   const [objective, setObjective] = useState('Meet a classmate in the courtyard');
   const [xp, setXp] = useState(0);
   const [missionComplete, setMissionComplete] = useState(false);
+  const [missionNotice, setMissionNotice] = useState('CURRENT OBJECTIVE');
 
   useEffect(() => {
     if (!entered || !host.current || game.current) return;
@@ -292,6 +325,7 @@ export default function App() {
     const onMissionComplete = (result: { xp: number; nextObjective: string }) => {
       setXp(current => current + result.xp);
       setMissionComplete(true);
+      setMissionNotice('MISSION COMPLETE · +' + result.xp + ' XP');
       setObjective(result.nextObjective);
     };
     game.current.events.on('mission-complete', onMissionComplete);
@@ -321,7 +355,7 @@ export default function App() {
         <div className="zone">FOUNDATION CAMPUS</div>
         <button className="menu-toggle" onClick={() => setMenu(v => !v)}>☰</button>
       </header>
-      <div className={`mission${missionComplete ? " completed" : ""}`}><small>{missionComplete ? "MISSION COMPLETE · +50 XP" : "CURRENT OBJECTIVE"}</small><b>{objective}</b></div>
+      <div className={`mission${missionComplete ? " completed" : ""}`}><small>{missionComplete ? missionNotice : "CURRENT OBJECTIVE"}</small><b>{objective}</b></div>
       {menu && <nav className="menu">{['Character','Ranking','Missions','Inventory','Friends','Close menu'].map(x => <button key={x} onClick={() => setMenu(false)}>{x}</button>)}</nav>}
       <div className="prototype">LOCAL GAME PREVIEW · ONLINE FEATURES IN DEVELOPMENT</div>
     </section>}
