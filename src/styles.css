@@ -34,3 +34,15 @@
   .world .zone { top: 8px; }
   .world .mission { top: 68px; left: 12px; max-width: 52%; }
 }
+
+
+/* In-world student records and progression overlay */
+.xp-track{position:absolute;z-index:12;top:58px;left:14px;width:176px;height:4px;border-radius:8px;background:#ffffff30;overflow:hidden}
+.xp-track span{display:block;height:100%;border-radius:8px;background:linear-gradient(90deg,#8b6cff,#c4a8ff);box-shadow:0 0 12px #a98cff}
+.game-panel{position:absolute;z-index:30;left:50%;top:50%;transform:translate(-50%,-50%);width:min(430px,calc(100% - 32px));max-height:min(72%,520px);overflow:auto;padding:26px 24px 22px;border:1px solid #a98cff99;border-radius:12px;background:linear-gradient(145deg,#17172ff5,#0b1024f7);box-shadow:0 24px 80px #000b,0 0 35px #8060ff25;backdrop-filter:blur(18px);color:#f7f4ff}
+.game-panel>small{display:block;color:#b8a2ff;font-size:9px;font-weight:800;letter-spacing:2px}
+.game-panel h2{margin:10px 34px 16px 0;font-family:'Barlow Condensed',sans-serif;font-size:30px;letter-spacing:.3px}
+.game-panel ul{list-style:none;margin:0;padding:0}
+.game-panel li{padding:11px 0;border-top:1px solid #ffffff18;color:#d1cde2;font-size:12px;line-height:1.55}
+.panel-close{position:absolute;right:13px;top:12px;width:32px;height:32px;border:1px solid #ffffff30;border-radius:7px;background:#ffffff0c;color:#fff;font-size:22px}
+@media(max-width:650px){.xp-track{top:102px;left:10px;width:145px}.game-panel{padding:22px 18px 16px}.game-panel h2{font-size:26px}}
