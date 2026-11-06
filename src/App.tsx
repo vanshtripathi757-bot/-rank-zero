@@ -270,6 +270,15 @@ export default function App() {
   const [xp, setXp] = useState(0);
   const [missionComplete, setMissionComplete] = useState(false);
   const [missionNotice, setMissionNotice] = useState('CURRENT OBJECTIVE');
+  const [activePanel, setActivePanel] = useState('');
+  const [showMenu, setShowMenu] = useState(false);
+  const panelContent: Record<string, { eyebrow: string; title: string; lines: string[] }> = {
+    Character: { eyebrow: 'STUDENT RECORD', title: 'New Student', lines: ['Class: D — Foundation', 'Level: 01', 'Experience: ' + xp + ' XP', 'Status: Orientation in progress', 'Specialization: Undecided'] },
+    Ranking: { eyebrow: 'ACADEMY RECORDS', title: 'Rankings are being prepared', lines: ['Class standings will appear after the first official evaluation.', 'NPC and player rankings will be shown separately.', 'Competitive scores will be server-verified.', 'No live multiplayer ranking is active in this prototype.'] },
+    Missions: { eyebrow: 'CHAPTER 01 · FOUNDATION', title: 'First Day at the Academy', lines: ['✓ Meet a classmate', '✓ Find your teacher', '✓ Enter the Class D homeroom', '✓ Complete Class D orientation', 'Current: ' + objective] },
+    Inventory: { eyebrow: 'PERSONAL STORAGE', title: 'Inventory', lines: ['Your starter inventory is empty.', 'Earn items through story missions, clubs and academy events.', 'Cosmetic rewards will never provide pay-to-win advantages.'] },
+    Friends: { eyebrow: 'SOCIAL', title: 'Academy contacts', lines: ['Classmate — Met in the courtyard', 'Teacher — Orientation guide', 'Online friends list is not connected yet.'] },
+  };
 
   useEffect(() => {
     if (!entered || !host.current || game.current) return;
@@ -309,10 +318,12 @@ export default function App() {
       <header className="hud">
         <div className="profile"><b>D</b><span>NEW STUDENT<small>LEVEL 01 · CLASS D · {xp} XP</small></span></div>
         <div className="zone">FOUNDATION CAMPUS</div>
-        <button className="menu-toggle" onClick={() => setMenu(v => !v)}>☰</button>
+        <button className="menu-toggle" onClick={() => setShowMenu(v => !v)}>☰</button>
       </header>
       <div className={`mission${missionComplete ? " completed" : ""}`}><small>{missionComplete ? missionNotice : "CURRENT OBJECTIVE"}</small><b>{objective}</b></div>
-      {menu && <nav className="menu">{['Character','Ranking','Missions','Inventory','Friends','Close menu'].map(x => <button key={x} onClick={() => setMenu(false)}>{x}</button>)}</nav>}
+      {showMenu && <nav className="menu">{['Character','Ranking','Missions','Inventory','Friends'].map(x => <button key={x} onClick={() => { setActivePanel(x); setShowMenu(false); }}>{x}</button>)}<button onClick={() => setShowMenu(false)}>Close menu</button></nav>}
+      {activePanel && <section className="game-panel" role="dialog" aria-label={activePanel}><button className="panel-close" onClick={() => setActivePanel('')}>×</button><small>{panelContent[activePanel].eyebrow}</small><h2>{panelContent[activePanel].title}</h2><ul>{panelContent[activePanel].lines.map((line, i) => <li key={i}>{line}</li>)}</ul></section>}
+      <div className="xp-track"><span style={{ width: Math.min(100, (xp % 300) / 3) + '%' }} /></div>
       <div className="prototype">LOCAL GAME PREVIEW · ONLINE FEATURES IN DEVELOPMENT</div>
     </section>}
   </main>;
