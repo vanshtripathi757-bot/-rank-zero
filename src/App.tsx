@@ -53,6 +53,8 @@ class CampusScene extends Phaser.Scene {
     g.fillCircle(this.homeroomX, this.homeroomY, 17);
     g.lineStyle(1, 0xffffff, 0.5);
     g.strokeCircle(this.homeroomX, this.homeroomY, 29);
+    const homeroomPulse = this.add.circle(this.homeroomX, this.homeroomY, 31, 0xc8a8ff, 0).setStrokeStyle(1, 0xe3d5ff, 0.7);
+    this.tweens.add({ targets: homeroomPulse, scale: 1.3, alpha: 0, duration: 1500, repeat: -1, ease: 'Sine.easeOut' });
     this.add.text(this.homeroomX, this.homeroomY - 62, 'CLASS D · HOMEROOM', {
       fontFamily: 'Arial', fontSize: '10px', color: '#fff0d4',
       stroke: '#241a3b', strokeThickness: 3, shadow: { offsetX: 0, offsetY: 2, color: '#120d24', blur: 5, fill: true },
@@ -65,6 +67,8 @@ class CampusScene extends Phaser.Scene {
     g.strokeRoundedRect(this.classroomX - 34, this.classroomY - 24, 68, 48, 8);
     g.fillStyle(0x54b9e8, 0.18);
     g.fillRoundedRect(this.classroomX - 30, this.classroomY - 20, 60, 40, 6);
+    const orientationPulse = this.add.circle(this.classroomX, this.classroomY, 28, 0x79d9ff, 0).setStrokeStyle(1, 0x9be6ff, 0.75);
+    this.tweens.add({ targets: orientationPulse, scale: 1.35, alpha: 0, duration: 1250, repeat: -1, ease: 'Sine.easeOut' });
     this.add.text(this.classroomX, this.classroomY - 38, 'CLASS D · ORIENTATION', {
       fontFamily: 'Arial', fontSize: '10px', color: '#d9f5ff',
       stroke: '#14233c', strokeThickness: 3,
@@ -88,6 +92,7 @@ class CampusScene extends Phaser.Scene {
     npcArt.fillStyle(0x49354a, 1);
     npcArt.fillEllipse(0, -19, 20, 10);
     npc.add(npcArt).setDepth(this.npcY);
+    this.tweens.add({ targets: npc, y: this.npcY - 3, duration: 1450, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     this.add.text(this.npcX, this.npcY - 43, 'CLASSMATE', {
       fontFamily: 'Arial', fontSize: '10px', color: '#ffffff',
       stroke: '#241a3b', strokeThickness: 3,
@@ -110,6 +115,7 @@ class CampusScene extends Phaser.Scene {
     teacherArt.fillStyle(0x353047, 1);
     teacherArt.fillEllipse(0, -22, 22, 9);
     teacher.add(teacherArt).setDepth(this.teacherY);
+    this.tweens.add({ targets: teacher, y: this.teacherY - 2, duration: 1750, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     this.add.text(this.teacherX, this.teacherY - 46, 'TEACHER', {
       fontFamily: 'Arial', fontSize: '10px', color: '#fff4dc',
       stroke: '#241a3b', strokeThickness: 3,
@@ -133,6 +139,8 @@ class CampusScene extends Phaser.Scene {
     avatar.fillStyle(0x3a2b4d, 1); avatar.fillRect(-2, -14, 2, 2); avatar.fillRect(4, -14, 2, 2);
     const character = this.add.container(px, py, [shadow, avatar]).setDepth(py);
     this.player = character;
+    this.tweens.add({ targets: avatar, y: 1.5, duration: 1050, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    this.tweens.add({ targets: shadow, scaleX: 0.92, alpha: 0.34, duration: 1050, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
 
     // Mobile virtual joystick and TALK button.
     this.joystickBase = this.add.circle(82, h - 88, 46, 0x0b1024, 0.55)
