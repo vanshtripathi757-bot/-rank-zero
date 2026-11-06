@@ -6,6 +6,15 @@ class CampusScene extends Phaser.Scene {
   private cursors?: Phaser.Types.Input.Keyboard.CursorKeys;
   private keys?: Record<string, Phaser.Input.Keyboard.Key>;
   private target?: Phaser.Math.Vector2;
+  private moveX = 0;
+  private moveY = 0;
+  private joystickBase?: Phaser.GameObjects.Arc;
+  private joystickKnob?: Phaser.GameObjects.Arc;
+  private talkButton?: Phaser.GameObjects.Arc;
+  private talkText?: Phaser.GameObjects.Text;
+  private dialogue?: Phaser.GameObjects.Text;
+  private npcX = 0;
+  private npcY = 0;
 
   constructor() { super('Campus'); }
 
@@ -128,6 +137,27 @@ class CampusScene extends Phaser.Scene {
       g.fillRect(x - 17, h * 0.83 + 7, 4, 12); g.fillRect(x + 13, h * 0.83 + 7, 4, 12);
     }
 
+    // A classmate NPC for the first social interaction.
+    this.npcX = w * 0.5;
+    this.npcY = h * 0.61;
+    const npc = this.add.container(this.npcX, this.npcY);
+    const npcArt = this.add.graphics();
+    npcArt.fillStyle(0x11101f, 0.4);
+    npcArt.fillEllipse(0, 13, 28, 10);
+    npcArt.fillStyle(0x344d72, 1);
+    npcArt.fillRoundedRect(-10, -1, 20, 27, 5);
+    npcArt.fillStyle(0xe8e4f1, 1);
+    npcArt.fillTriangle(-7, 1, 0, 9, 7, 1);
+    npcArt.fillStyle(0xf0c9b7, 1);
+    npcArt.fillCircle(0, -12, 9);
+    npcArt.fillStyle(0x49354a, 1);
+    npcArt.fillEllipse(0, -19, 20, 10);
+    npc.add(npcArt).setDepth(this.npcY);
+    this.add.text(this.npcX, this.npcY - 40, 'CLASSMATE', {
+      fontFamily: 'Arial', fontSize: '10px', color: '#f1eaff',
+      backgroundColor: '#17152dcc', padding: { x: 6, y: 4 },
+    }).setOrigin(0.5);
+
     // Player shadow and a simple layered academy-uniform character.
     const px = w * 0.5, py = h * 0.78;
     const shadow = this.add.ellipse(0, 15, 34, 13, 0x08101b, 0.48);
@@ -146,8 +176,42 @@ class CampusScene extends Phaser.Scene {
     const character = this.add.container(px, py, [shadow, avatar]).setDepth(py);
     this.player = character;
 
+    // Mobile virtual joystick and TALK button.
+    this.joystickBase = this.add.circle(82, h - 88, 46, 0x0b1024, 0.55)
+      .setStrokeStyle(2, 0xb8a3ff, 0.7).setDepth(1000).setVisible(false);
+    this.joystickKnob = this.add.circle(82, h - 88, 20, 0x9a7bff, 0.9)
+      .setStrokeStyle(2, 0xffffff, 0.8).setDepth(1001).setVisible(false);
+    this.talkButton = this.add.circle(w - 70, h - 88, 36, 0x7554d9, 0.9)
+      .setStrokeStyle(2, 0xe4d9ff, 0.9).setDepth(1000);
+    this.talkText = this.add.text(w - 70, h - 88, 'TALK', {
+      fontFamily: 'Arial', fontSize: '11px', color: '#ffffff', fontStyle: 'bold',
+    }).setOrigin(0.5).setDepth(1001);
+    this.dialogue = this.add.text(w / 2, h - 155, '', {
+      fontFamily: 'Arial', fontSize: '13px', color: '#ffffff',
+      backgroundColor: '#111426ee', padding: { x: 12, y: 9 },
+      align: 'center', wordWrap: { width: w - 48 },
+    }).setOrigin(0.5).setDepth(1100);
+
     this.input.on('pointerdown', (p: Phaser.Input.Pointer) => {
-      if (p.y > 72 && p.y < h - 28) this.target = new Phaser.Math.Vector2(p.x, p.y);
+      if (p.x < 150 && p.y > h - 165) {
+        this.target = undefined;
+        this.joystickBase?.setVisible(true).setPosition(82, h - 88);
+        this.joystickKnob?.setVisible(true).setPosition(82, h - 88);
+        this.updateJoystick(p.x, p.y);
+      } else if (p.x > w - 135 && p.y > h - 155) {
+        this.interact();
+      } else if (p.y > 72 && p.y < h - 175) {
+        this.target = new Phaser.Math.Vector2(p.x, p.y);
+      }
+    });
+    this.input.on('pointermove', (p: Phaser.Input.Pointer) => {
+      if (this.joystickBase?.visible && p.isDown) this.updateJoystick(p.x, p.y);
+    });
+    this.input.on('pointerup', () => {
+      this.moveX = 0;
+      this.moveY = 0;
+      this.joystickBase?.setVisible(false);
+      this.joystickKnob?.setVisible(false);
     });
     if (this.input.keyboard) {
       this.cursors = this.input.keyboard.createCursorKeys();
@@ -156,13 +220,34 @@ class CampusScene extends Phaser.Scene {
     this.scale.on('resize', () => this.scene.restart());
   }
 
+  private updateJoystick(x: number, y: number) {
+    const cx = 82;
+    const cy = this.scale.height - 88;
+    const dx = x - cx;
+    const dy = y - cy;
+    const length = Math.hypot(dx, dy) || 1;
+    const amount = Math.min(32, length);
+    this.moveX = dx / length * Math.min(1, length / 32);
+    this.moveY = dy / length * Math.min(1, length / 32);
+    this.joystickKnob?.setPosition(cx + dx / length * amount, cy + dy / length * amount);
+  }
+
+  private interact() {
+    if (!this.player || !this.dialogue) return;
+    const distance = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.npcX, this.npcY);
+    this.dialogue.setText(distance < 125
+      ? 'Classmate: Welcome to Foundation Campus, new student!'
+      : 'Move closer to the classmate to talk.');
+    this.time.delayedCall(3000, () => this.dialogue?.setText(''));
+  }
+
   update(_time: number, delta: number) {
     if (!this.player) return;
-    let dx = 0, dy = 0;
-    if (this.cursors?.left.isDown || this.keys?.A.isDown) dx--;
-    if (this.cursors?.right.isDown || this.keys?.D.isDown) dx++;
-    if (this.cursors?.up.isDown || this.keys?.W.isDown) dy--;
-    if (this.cursors?.down.isDown || this.keys?.S.isDown) dy++;
+    let dx = this.moveX, dy = this.moveY;
+    if (this.cursors?.left.isDown || this.keys?.A.isDown) dx = -1;
+    if (this.cursors?.right.isDown || this.keys?.D.isDown) dx = 1;
+    if (this.cursors?.up.isDown || this.keys?.W.isDown) dy = -1;
+    if (this.cursors?.down.isDown || this.keys?.S.isDown) dy = 1;
     const speed = delta * 0.19;
     if (dx || dy) {
       this.target = undefined;
