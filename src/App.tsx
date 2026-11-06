@@ -18,12 +18,13 @@ export default function App() {
   const [missionNotice, setMissionNotice] = useState('CURRENT OBJECTIVE');
   const [activePanel, setActivePanel] = useState('');
   const [showMenu, setShowMenu] = useState(false);
+  const playerLevel = Math.floor(xp / 150) + 1;
   const panelContent: Record<string, { eyebrow: string; title: string; lines: string[] }> = {
-    Character: { eyebrow: 'STUDENT RECORD', title: 'New Student', lines: ['Class: D — Foundation', 'Level: 01', 'Experience: ' + xp + ' XP', 'Status: Orientation in progress', 'Specialization: Undecided'] },
-    Ranking: { eyebrow: 'ACADEMY RECORDS', title: 'Rankings are being prepared', lines: ['Class standings will appear after the first official evaluation.', 'NPC and player rankings will be shown separately.', 'Competitive scores will be server-verified.', 'No live multiplayer ranking is active in this prototype.'] },
+    Character: { eyebrow: 'STUDENT RECORD', title: xp >= 500 ? 'Campus Explorer' : 'New Student', lines: ['Class: D — Foundation', 'Level: ' + String(playerLevel).padStart(2, '0'), 'Experience: ' + xp + ' XP', 'Academy reputation: ' + Math.floor(xp / 50), 'Status: ' + (xp >= 500 ? 'Foundation Campus registered' : xp >= 350 ? 'Campus access active' : 'Orientation in progress'), 'Specialization: Undecided'] },
+    Ranking: { eyebrow: 'ACADEMY RECORDS · LOCAL PREVIEW', title: 'Foundation standings', lines: ['NPC STUDENT BOARD — DEMO DATA', '1. Aiko Ren · 2,450 points', '2. Haruto Sato · 2,180 points', '3. Mina Kurose · 1,960 points', 'You · ' + xp + ' academy points · Class D', 'Global player rankings are not connected yet.'] },
     Missions: { eyebrow: 'CHAPTER 01 · FOUNDATION', title: 'First Day at the Academy', lines: [(xp >= 50 ? '✓ ' : '○ ') + 'Meet a classmate', (xp >= 100 ? '✓ ' : '○ ') + 'Find your teacher', (xp >= 200 ? '✓ ' : '○ ') + 'Enter the Class D homeroom', (xp >= 350 ? '✓ ' : '○ ') + 'Complete Class D orientation', (xp >= 400 ? '✓ ' : '○ ') + 'Explore the library', (xp >= 450 ? '✓ ' : '○ ') + 'Visit the cafeteria', (xp >= 500 ? '✓ ' : '○ ') + 'Explore the sports court', 'Current: ' + objective] },
-    Inventory: { eyebrow: 'PERSONAL STORAGE', title: 'Inventory', lines: ['Your starter inventory is empty.', 'Earn items through story missions, clubs and academy events.', 'Cosmetic rewards will never provide pay-to-win advantages.'] },
-    Friends: { eyebrow: 'SOCIAL', title: 'Academy contacts', lines: ['Classmate — Met in the courtyard', 'Teacher — Orientation guide', 'Online friends list is not connected yet.'] },
+    Inventory: { eyebrow: 'PERSONAL STORAGE', title: 'Inventory', lines: [xp >= 350 ? 'Foundation Student ID · Story item' : 'No items collected yet', xp >= 500 ? 'Campus map · Utility item' : 'Campus map unlocks after exploration', xp >= 500 ? 'First-Day Badge · Achievement item' : 'First-Day Badge unlocks after Chapter 1', 'Items are earned through play; no pay-to-win boosts.'] },
+    Friends: { eyebrow: 'SOCIAL', title: 'Academy contacts', lines: ['Classmate — Met in the courtyard', 'Teacher — Orientation guide', 'Aiko Ren — NPC student · Not yet met', 'Online friends list is not connected yet.'] },
   };
 
   useEffect(() => {
