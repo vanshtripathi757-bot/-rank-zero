@@ -97,7 +97,7 @@ export default function App() {
     if (!entered || !host.current || game.current) return;
     game.current = new Phaser.Game({
       type: Phaser.AUTO, parent: host.current, backgroundColor: '#15182f',
-      scale: { mode: Phaser.Scale.RESIZE, autoCenter: Phaser.Scale.CENTER_BOTH, width: '100%', height: '100%' },
+      scale: { mode: Phaser.Scale.RESIZE, autoCenter: Phaser.Scale.CENTER_BOTH, width: 1280, height: 720 },
       scene: [CampusScene],
     });
     return () => { game.current?.destroy(true); game.current = null; };
