@@ -2,6 +2,10 @@ import Phaser from 'phaser';
 
 export default class CampusScene extends Phaser.Scene {
   private player?: Phaser.GameObjects.Container;
+  private playerLegs?: Phaser.GameObjects.Graphics;
+  private playerArms?: Phaser.GameObjects.Graphics;
+  private walkClock = 0;
+  private facing = 1;
   private cursors?: Phaser.Types.Input.Keyboard.CursorKeys;
   private keys?: Record<string, Phaser.Input.Keyboard.Key>;
   private target?: Phaser.Math.Vector2;
@@ -52,35 +56,9 @@ export default class CampusScene extends Phaser.Scene {
     const g = this.add.graphics();
     this.drawCampusWorld(w, h, g);
 
-    // Class D homeroom entrance: a visible, interactable destination for onboarding.
-    this.homeroomX = w * 0.5;
-    this.homeroomY = h * 0.49;
-    g.lineStyle(3,
+    // Class D
 …[1 chars truncated — re-run with head/grep/tail for full output]…
-his.add.text(this.npcX, this.npcY - 53, 'CLASSMATE', {
-      fontFamily: 'Arial', fontSize: '10px', color: '#ffffff',
-      stroke: '#241a3b', strokeThickness: 3,
-    }).setOrigin(0.5);
-
-    this.teacherX = w * 0.78;
-    this.teacherY = h * 0.61;
-    const teacher = this.makeStudent(this.teacherX, this.teacherY, 0x34364f, 0x343047, 0xd9b49e, true);
-    this.tweens.add({ targets: teacher, y: this.teacherY - 2, duration: 1750, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
-    this.add.text(this.teacherX, this.teacherY - 55, 'TEACHER', {
-      fontFamily: 'Arial', fontSize: '10px', color: '#fff4dc',
-      stroke: '#241a3b', strokeThickness: 3,
-    }).setOrigin(0.5);
-
-    const px = w * 0.5, py = h * 0.78;
-    this.player = this.makeStudent(px, py, 0x33294c, 0x201a31, 0xf0c8b5, false, true).setDepth(py);
-    // Mobile virtual joystick and TALK button.
-    this.joystickBase = this.add.circle(82, h - 88, 46, 0x0b1024, 0.55)
-      .setStrokeStyle(2, 0xb8a3ff, 0.7).setDepth(1000).setVisible(false);
-    this.joystickKnob = this.add.circle(82, h - 88, 20, 0x9a7bff, 0.9)
-      .setStrokeStyle(2, 0xffffff, 0.8).setDepth(1001).setVisible(false);
-    this.add.circle(w - 70, h - 88, 36, 0x7554d9, 0.9)
-      .setStrokeStyle(2, 0xe4d9ff, 0.9).setDepth(1000);
-    this.add.text(w - 70, h - 88, 'TALK', {
+ 'TALK', {
       fontFamily: 'Arial', fontSize: '11px', color: '#ffffff', fontStyle: 'bold',
     }).setOrigin(0.5).setDepth(1001);
     this.dialogue = this.add.text(w / 2, h - 155, '', {
@@ -204,10 +182,16 @@ his.add.text(this.npcX, this.npcY - 53, 'CLASSMATE', {
 
   private makeStudent(x: number, y: number, jacket: number, hair: number, skin: number, teacher = false, player = false) {
     const shadow = this.add.ellipse(0, 18, 33, 12, 0x17251f, 0.35);
+    const legs = this.add.graphics();
+    legs.fillStyle(0x272b3d,1); legs.fillRoundedRect(-9,-1,7,14,2); legs.fillRoundedRect(2,-1,7,14,2);
+    legs.fillStyle(0x1d202c,1); legs.fillRoundedRect(-11,10,10,5,2); legs.fillRoundedRect(1,10,10,5,2);
+    legs.fillStyle(0x62657a,0.7); legs.fillRect(-10,11,5,1); legs.fillRect(2,11,5,1);
+    legs.setPosition(0,17);
+    const arms = this.add.graphics();
+    arms.fillStyle(jacket,1); arms.fillRoundedRect(-17,-1,7,18,3); arms.fillRoundedRect(10,-1,7,18,3);
+    arms.fillStyle(skin,1); arms.fillRoundedRect(-17,13,7,6,2); arms.fillRoundedRect(10,13,7,6,2);
+    arms.setPosition(0,-3);
     const art = this.add.graphics();
-    // Legs and polished shoes.
-    art.fillStyle(0x272b3d,1); art.fillRoundedRect(-9,18,7,14,3); art.fillRoundedRect(2,18,7,14,3);
-    art.fillStyle(0x1d202c,1); art.fillRoundedRect(-11,29,10,5,2); art.fillRoundedRect(1,29,10,5,2);
     // Blazer silhouette, shirt and collar.
     art.fillStyle(jacket,1); art.fillRoundedRect(-14,-5,28,28,7);
     art.fillStyle(0xf2eee5,1); art.fillTriangle(-8,-3,0,8,8,-3); art.fillTriangle(-8,-3,-5,13,0,8); art.fillTriangle(8,-3,5,13,0,8);
@@ -230,9 +214,10 @@ his.add.text(this.npcX, this.npcY - 53, 'CLASSMATE', {
       art.lineStyle(2,0xe5d8ff,0.9); art.strokeRoundedRect(-15,-6,30,30,7);
       art.fillStyle(0xe3c77e,1); art.fillCircle(9,1,2.2);
     }
-    const character = this.add.container(x,y,[shadow,art]);
-    character.setSize(32,48);
+    const character = this.add.container(x,y,[shadow,legs,arms,art]);
+    character.setSize(36,52);
     if (player) {
+      this.playerLegs = legs; this.playerArms = arms;
       this.tweens.add({targets:art,y:1.5,duration:1050,yoyo:true,repeat:-1,ease:'Sine.easeInOut'});
       this.tweens.add({targets:shadow,scaleX:0.92,alpha:0.27,duration:1050,yoyo:true,repeat:-1,ease:'Sine.easeInOut'});
     }
@@ -325,17 +310,30 @@ his.add.text(this.npcX, this.npcY - 53, 'CLASSMATE', {
     if (this.cursors?.up.isDown || this.keys?.W.isDown) dy = -1;
     if (this.cursors?.down.isDown || this.keys?.S.isDown) dy = 1;
     const speed = delta * 0.19;
+    const moving = Math.abs(dx) + Math.abs(dy) > 0.02 || Boolean(this.target && Phaser.Math.Distance.Between(this.player.x, this.player.y, this.target.x, this.target.y) >= 4);
     if (dx || dy) {
       this.target = undefined;
       const len = Math.hypot(dx, dy);
       this.player.x += dx / len * speed; this.player.y += dy / len * speed;
+      if (Math.abs(dx) > 0.05) this.facing = dx < 0 ? -1 : 1;
     } else if (this.target) {
       const d = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.target.x, this.target.y);
       if (d < 4) this.target = undefined;
       else {
         const a = Phaser.Math.Angle.Between(this.player.x, this.player.y, this.target.x, this.target.y);
         this.player.x += Math.cos(a) * speed; this.player.y += Math.sin(a) * speed;
+        if (Math.abs(Math.cos(a)) > 0.05) this.facing = Math.cos(a) < 0 ? -1 : 1;
       }
+    }
+    this.player.setScale(this.facing, 1);
+    if (moving) {
+      this.walkClock += delta * 0.012;
+      const stride = Math.sin(this.walkClock) * 0.62;
+      if (this.playerLegs) this.playerLegs.rotation = stride;
+      if (this.playerArms) this.playerArms.rotation = -stride * 0.72;
+    } else {
+      if (this.playerLegs) this.playerLegs.rotation = Phaser.Math.Linear(this.playerLegs.rotation, 0, 0.25);
+      if (this.playerArms) this.playerArms.rotation = Phaser.Math.Linear(this.playerArms.rotation, 0, 0.25);
     }
     this.player.x = Phaser.Math.Clamp(this.player.x, 22, this.scale.width - 22);
     this.player.y = Phaser.Math.Clamp(this.player.y, this.scale.height * 0.19, this.scale.height - 42);
