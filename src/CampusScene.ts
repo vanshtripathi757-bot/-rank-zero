@@ -56,12 +56,13 @@ export default class CampusScene extends Phaser.Scene {
 
   create() {
     const { width: w, height: h } = this.scale;
+    const worldW = w * 2.5, worldH = h * 2.5;
     const g = this.add.graphics();
-    this.drawCampusWorld(w, h, g);
+    this.drawCampusWorld(worldW, worldH, g);
 
     // Class D homeroom entrance: a visible, interactable destination for onboarding.
-    this.homeroomX = w * 0.5;
-    this.homeroomY = h * 0.49;
+    this.homeroomX = worldW * 0.5;
+    this.homeroomY = worldH * 0.49;
     g.lineStyle(3, 0xc8a8ff, 0.95);
     g.strokeCircle(this.homeroomX, this.homeroomY, 23);
     g.fillStyle(0x8f69ff, 0.16);
@@ -76,8 +77,8 @@ export default class CampusScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     // Class D orientation classroom: the next story destination after homeroom.
-    this.classroomX = w * 0.5;
-    this.classroomY = h * 0.29;
+    this.classroomX = worldW * 0.5;
+    this.classroomY = worldH * 0.29;
     g.lineStyle(2, 0x79d9ff, 0.95);
     g.strokeRoundedRect(this.classroomX - 34, this.classroomY - 24, 68, 48, 8);
     g.fillStyle(0x54b9e8, 0.18);
@@ -98,9 +99,9 @@ export default class CampusScene extends Phaser.Scene {
         stroke: '#17162b', strokeThickness: 3,
       }).setOrigin(0.5);
     };
-    this.libraryX = w * 0.2; this.libraryY = h * 0.34;
-    this.cafeteriaX = w * 0.8; this.cafeteriaY = h * 0.34;
-    this.sportsX = w * 0.2; this.sportsY = h * 0.69;
+    this.libraryX = worldW * 0.2; this.libraryY = worldH * 0.34;
+    this.cafeteriaX = worldW * 0.8; this.cafeteriaY = worldH * 0.34;
+    this.sportsX = worldW * 0.2; this.sportsY = worldH * 0.69;
     addExploreMarker(this.libraryX, this.libraryY, 'LIBRARY', 0x9bdbff);
     addExploreMarker(this.cafeteriaX, this.cafeteriaY, 'CAFETERIA', 0xffc77d);
     addExploreMarker(this.sportsX, this.sportsY, 'SPORTS COURT', 0x8ce0b8);
@@ -108,8 +109,8 @@ export default class CampusScene extends Phaser.Scene {
     // Keep one clear destination marker; avoid duplicated homeroom labels.
 
     // Original hand-drawn student character rig.
-    this.npcX = w * 0.5;
-    this.npcY = h * 0.61;
+    this.npcX = worldW * 0.5;
+    this.npcY = worldH * 0.61;
     const npc = this.makeStudent(this.npcX, this.npcY, 0x6b86b5, 0x49354a, 0xe9c4b5);
     this.tweens.add({ targets: npc, y: this.npcY - 3, duration: 1450, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     this.add.text(this.npcX, this.npcY - 43, 'CLASSMATE', {
@@ -119,8 +120,8 @@ export default class CampusScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     // Teacher variant uses a different uniform, hair and glasses.
-    this.teacherX = w * 0.78;
-    this.teacherY = h * 0.61;
+    this.teacherX = worldW * 0.78;
+    this.teacherY = worldH * 0.61;
     const teacher = this.makeStudent(this.teacherX, this.teacherY, 0x34364f, 0x343047, 0xd9b49e, true);
     this.tweens.add({ targets: teacher, y: this.teacherY - 2, duration: 1750, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     this.add.text(this.teacherX, this.teacherY - 46, 'TEACHER', {
@@ -132,9 +133,9 @@ export default class CampusScene extends Phaser.Scene {
     // Small campus crowd: each student is assembled from original rig layers,
     // with a distinct uniform/hair palette and staggered idle motion.
     const campusStudents = [
-      { x: w * 0.36, y: h * 0.55, jacket: 0x7b536f, hair: 0x28253c, skin: 0xe6bda9, name: 'MIRA' },
-      { x: w * 0.66, y: h * 0.54, jacket: 0x536b78, hair: 0x8b6044, skin: 0xf0c9ae, name: 'REN' },
-      { x: w * 0.36, y: h * 0.83, jacket: 0x6d7655, hair: 0x332b2a, skin: 0xd9ad98, name: 'KAI' },
+      { x: worldW * 0.36, y: worldH * 0.55, jacket: 0x7b536f, hair: 0x28253c, skin: 0xe6bda9, name: 'MIRA' },
+      { x: worldW * 0.66, y: worldH * 0.54, jacket: 0x536b78, hair: 0x8b6044, skin: 0xf0c9ae, name: 'REN' },
+      { x: worldW * 0.36, y: worldH * 0.83, jacket: 0x6d7655, hair: 0x332b2a, skin: 0xd9ad98, name: 'KAI' },
     ];
     campusStudents.forEach((student, index) => {
       const actor = this.makeStudent(student.x, student.y, student.jacket, student.hair, student.skin);
@@ -144,24 +145,28 @@ export default class CampusScene extends Phaser.Scene {
     });
 
     // Player avatar is assembled from original Phaser-drawn layers.
-    const px = w * 0.5, py = h * 0.78;
+    const px = worldW * 0.5, py = worldH * 0.78;
     this.player = this.makeStudent(px, py, 0x33294c, 0x201a31, 0xf0c8b5, false, true).setDepth(py);
+    this.physics?.world?.setBounds(0, 0, worldW, worldH);
+    this.cameras.main.setBounds(0, 0, worldW, worldH);
+    this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
+    this.cameras.main.setDeadzone(w * 0.28, h * 0.22);
 
     // Mobile virtual joystick and TALK button.
     this.joystickBase = this.add.circle(82, h - 88, 46, 0x0b1024, 0.55)
-      .setStrokeStyle(2, 0xb8a3ff, 0.7).setDepth(1000).setVisible(false);
+      .setStrokeStyle(2, 0xb8a3ff, 0.7).setDepth(1000).setScrollFactor(0).setVisible(false);
     this.joystickKnob = this.add.circle(82, h - 88, 20, 0x9a7bff, 0.9)
-      .setStrokeStyle(2, 0xffffff, 0.8).setDepth(1001).setVisible(false);
+      .setStrokeStyle(2, 0xffffff, 0.8).setDepth(1001).setScrollFactor(0).setVisible(false);
     this.add.circle(w - 70, h - 88, 36, 0x7554d9, 0.9)
-      .setStrokeStyle(2, 0xe4d9ff, 0.9).setDepth(1000);
+      .setStrokeStyle(2, 0xe4d9ff, 0.9).setDepth(1000).setScrollFactor(0);
     this.add.text(w - 70, h - 88, 'TALK', {
       fontFamily: 'Arial', fontSize: '11px', color: '#ffffff', fontStyle: 'bold',
-    }).setOrigin(0.5).setDepth(1001);
+    }).setOrigin(0.5).setDepth(1001).setScrollFactor(0);
     this.dialogue = this.add.text(w / 2, h - 155, '', {
       fontFamily: 'Arial', fontSize: '13px', color: '#ffffff',
       backgroundColor: '#111426ee', padding: { x: 12, y: 9 },
       align: 'center', wordWrap: { width: w - 48 },
-    }).setOrigin(0.5).setDepth(1100);
+    }).setOrigin(0.5).setDepth(1100).setScrollFactor(0);
 
     this.input.on('pointerdown', (p: Phaser.Input.Pointer) => {
       if (this.interiorMode && !(p.x > w - 135 && p.y > h - 155)) return;
@@ -173,7 +178,8 @@ export default class CampusScene extends Phaser.Scene {
       } else if (p.x > w - 135 && p.y > h - 155) {
         this.interact();
       } else if (p.y > 72 && p.y < h - 175) {
-        this.target = new Phaser.Math.Vector2(p.x, p.y);
+        const worldPoint = this.cameras.main.getWorldPoint(p.x, p.y);
+        this.target = new Phaser.Math.Vector2(worldPoint.x, worldPoint.y);
       }
     });
     this.input.on('pointermove', (p: Phaser.Input.Pointer) => {
@@ -338,12 +344,14 @@ export default class CampusScene extends Phaser.Scene {
   private openInterior(name: string) {
     if (!this.player) return;
     this.interiorMode = name;
+    this.cameras.main.stopFollow();
     this.interiorReturn = new Phaser.Math.Vector2(this.player.x, this.player.y);
     this.target = undefined;
     this.moveX = 0; this.moveY = 0;
-    this.player.setPosition(this.scale.width * 0.5, this.scale.height * 0.79).setDepth(260);
+    const center = this.cameras.main.getWorldPoint(this.scale.width * 0.5, this.scale.height * 0.5);
+    this.player.setPosition(center.x, center.y + 105).setDepth(260);
     const w = this.scale.width, h = this.scale.height;
-    const room = this.add.graphics().setDepth(200);
+    const room = this.add.graphics().setDepth(200).setScrollFactor(0);
     room.fillStyle(0x18232b, 1); room.fillRect(0, 0, w, h);
     room.fillStyle(name === 'CAFETERIA' ? 0x80664d : name === 'LIBRARY' ? 0x5c6f78 : 0x52675d, 1);
     room.fillRoundedRect(w * 0.08, h * 0.08, w * 0.84, h * 0.84, 18);
@@ -366,8 +374,8 @@ export default class CampusScene extends Phaser.Scene {
       room.lineStyle(3,0xf1e9d5,0.9); room.strokeRoundedRect(w*0.24,h*0.28,w*0.52,h*0.30,8); room.lineBetween(w*0.5,h*0.28,w*0.5,h*0.58); room.strokeCircle(w*0.5,h*0.43,34);
       room.fillStyle(0x7a5a42,1); room.fillRoundedRect(w*0.14,h*0.19,w*0.08,h*0.05,3); room.fillRoundedRect(w*0.78,h*0.19,w*0.08,h*0.05,3);
     }
-    const title = this.add.text(w*0.5,h*0.045,name,{fontFamily:'Arial',fontSize:'20px',fontStyle:'bold',color:'#fff5df',stroke:'#28323c',strokeThickness:5}).setOrigin(0.5).setDepth(220);
-    const hint = this.add.text(w*0.5,h*0.95,'PRESS TALK TO RETURN TO CAMPUS',{fontFamily:'Arial',fontSize:'11px',fontStyle:'bold',color:'#fff5df',stroke:'#28323c',strokeThickness:4}).setOrigin(0.5).setDepth(220);
+    const title = this.add.text(w*0.5,h*0.045,name,{fontFamily:'Arial',fontSize:'20px',fontStyle:'bold',color:'#fff5df',stroke:'#28323c',strokeThickness:5}).setOrigin(0.5).setDepth(220).setScrollFactor(0);
+    const hint = this.add.text(w*0.5,h*0.95,'PRESS TALK TO RETURN TO CAMPUS',{fontFamily:'Arial',fontSize:'11px',fontStyle:'bold',color:'#fff5df',stroke:'#28323c',strokeThickness:4}).setOrigin(0.5).setDepth(220).setScrollFactor(0);
     this.interiorObjects = [room,title,hint];
     this.dialogue?.setText(name === 'LIBRARY' ? 'The academy archive: shelves of course records and old campus histories.' : name === 'CAFETERIA' ? 'The cafeteria is a lively meeting point between lessons.' : 'The sports hall hosts club practice and inter-class events.');
   }
@@ -377,7 +385,7 @@ export default class CampusScene extends Phaser.Scene {
     this.interiorObjects.forEach(object => object.destroy());
     this.interiorObjects = [];
     this.interiorMode = null;
-    if (this.player && this.interiorReturn) this.player.setPosition(this.interiorReturn.x, this.interiorReturn.y).setDepth(this.interiorReturn.y);
+    if (this.player && this.interiorReturn) { this.player.setPosition(this.interiorReturn.x, this.interiorReturn.y).setDepth(this.interiorReturn.y); this.cameras.main.startFollow(this.player, true, 0.08, 0.08); }
     this.dialogue?.setText('Back on campus. Continue exploring your academy.');
   }
 
@@ -484,8 +492,8 @@ export default class CampusScene extends Phaser.Scene {
       if (this.playerLegs) this.playerLegs.rotation = Phaser.Math.Linear(this.playerLegs.rotation, 0, 0.25);
       if (this.playerArms) this.playerArms.rotation = Phaser.Math.Linear(this.playerArms.rotation, 0, 0.25);
     }
-    this.player.x = Phaser.Math.Clamp(this.player.x, 22, this.scale.width - 22);
-    this.player.y = Phaser.Math.Clamp(this.player.y, this.scale.height * 0.19, this.scale.height - 42);
+    this.player.x = Phaser.Math.Clamp(this.player.x, 28, this.scale.width * 2.5 - 28);
+    this.player.y = Phaser.Math.Clamp(this.player.y, 28, this.scale.height * 2.5 - 42);
     this.player.setDepth(this.player.y);
   }
 }
