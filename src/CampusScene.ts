@@ -40,6 +40,9 @@ export default class CampusScene extends Phaser.Scene {
   private interiorMode: string | null = null;
   private interiorObjects: Phaser.GameObjects.GameObject[] = [];
   private interiorReturn?: Phaser.Math.Vector2;
+  private minimap?: Phaser.GameObjects.Graphics;
+  private readonly worldWidth = 3200;
+  private readonly worldHeight = 1800;
 
   constructor(initialXp = 0) {
     super('Campus');
@@ -59,6 +62,7 @@ export default class CampusScene extends Phaser.Scene {
     const worldW = w * 2.5, worldH = h * 2.5;
     const g = this.add.graphics();
     this.drawCampusWorld(worldW, worldH, g);
+    this.drawOuterDistricts(worldW, worldH, g);
 
     // Class D homeroom entrance: a visible, interactable destination for onboarding.
     this.homeroomX = worldW * 0.5;
@@ -151,6 +155,7 @@ export default class CampusScene extends Phaser.Scene {
     this.cameras.main.setBounds(0, 0, worldW, worldH);
     this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
     this.cameras.main.setDeadzone(w * 0.28, h * 0.22);
+    this.minimap = this.add.graphics().setDepth(1050).setScrollFactor(0);
 
     // Mobile virtual joystick and TALK button.
     this.joystickBase = this.add.circle(82, h - 88, 46, 0x0b1024, 0.55)
@@ -271,6 +276,54 @@ export default class CampusScene extends Phaser.Scene {
     }
     // Soft foreground vignette to frame the playable space.
     g.fillStyle(0x172b2b, 0.08); g.fillRect(0, h*0.94, w, h*0.06);
+  }
+
+  private drawOuterDistricts(w: number, h: number, g: Phaser.GameObjects.Graphics) {
+    // Connected neighbourhoods make the academy grounds feel like part of a wider town.
+    g.fillStyle(0x6d7770, 0.95);
+    g.fillRoundedRect(w * 0.035, h * 0.485, w * 0.93, h * 0.105, 18);
+    g.fillStyle(0xc6c0ae, 1);
+    g.fillRoundedRect(w * 0.035, h * 0.505, w * 0.93, h * 0.065, 12);
+    g.lineStyle(2, 0x9a927e, 0.55);
+    for (let x = w * 0.06; x < w * 0.95; x += 82) g.lineBetween(x, h * 0.536, x + 34, h * 0.536);
+
+    const house = (x: number, y: number, wall: number, roof: number, shop = false) => {
+      g.fillStyle(0x3d4946, 0.3); g.fillRoundedRect(x + 5, y + 9, 190, 120, 8);
+      g.fillStyle(wall, 1); g.fillRoundedRect(x, y + 18, 180, 105, 7);
+      g.fillStyle(roof, 1); g.fillTriangle(x - 8, y + 25, x + 90, y - 24, x + 188, y + 25);
+      g.fillStyle(0x354b5a, 1); g.fillRoundedRect(x + 18, y + 46, 37, 42, 4); g.fillRoundedRect(x + 124, y + 46, 37, 42, 4);
+      g.lineStyle(2, 0xf0e4cd, 0.85); g.lineBetween(x + 36, y + 46, x + 36, y + 88); g.lineBetween(x + 18, y + 67, x + 55, y + 67);
+      g.fillStyle(0x5a463b, 1); g.fillRoundedRect(x + 76, y + 69, 29, 54, 3);
+      if (shop) { g.fillStyle(0xf0d39a, 1); g.fillRoundedRect(x + 60, y + 31, 62, 18, 4); g.fillStyle(0x34404b, 1); g.fillRect(x + 65, y + 35, 52, 10); }
+    };
+    // Residential lane to the west of the academy.
+    house(w * 0.055, h * 0.655, 0xc7b79d, 0x765b55);
+    house(w * 0.205, h * 0.655, 0xb9c7ba, 0x586a72);
+    g.fillStyle(0x47694e, 1); g.fillCircle(w * 0.13, h * 0.64, 27); g.fillCircle(w * 0.29, h * 0.64, 24);
+    g.fillStyle(0xe7dfc7, 1); g.fillRoundedRect(w * 0.07, h * 0.625, w * 0.36, 18, 5);
+    g.fillStyle(0x314c42, 1); g.fillRect(w * 0.07, h * 0.628, w * 0.36, 4);
+    // Small shopping street to the east, with distinct shopfronts.
+    house(w * 0.72, h * 0.655, 0xd6c29e, 0x79584a, true);
+    house(w * 0.865, h * 0.655, 0xc5b5c8, 0x655b7a, true);
+    g.fillStyle(0x45684d, 1); g.fillCircle(w * 0.705, h * 0.65, 25); g.fillCircle(w * 0.96, h * 0.65, 25);
+    g.fillStyle(0xeee1c8, 1); g.fillRoundedRect(w * 0.73, h * 0.625, w * 0.22, 16, 5);
+    g.fillStyle(0x394957, 1); g.fillRect(w * 0.74, h * 0.628, w * 0.20, 4);
+    // A broad park promenade links the market to the pond and sports grounds.
+    g.fillStyle(0xb9b69d, 1); g.fillRoundedRect(w * 0.61, h * 0.73, w * 0.34, h * 0.035, 10);
+    for (let i = 0; i < 9; i++) {
+      const x = w * 0.64 + i * w * 0.034;
+      g.fillStyle(0x765b45, 1); g.fillRect(x - 3, h * 0.79, 6, 23);
+      g.fillStyle(i % 2 ? 0x4e7953 : 0x5b855b, 1); g.fillCircle(x, h * 0.785, 18);
+      g.fillStyle(0xa5c18a, 0.5); g.fillCircle(x - 6, h * 0.777, 8);
+    }
+    g.fillStyle(0x304b43, 1);
+    g.fillRoundedRect(w * 0.06, h * 0.61, 230, 24, 5);
+    g.fillRoundedRect(w * 0.73, h * 0.61, 260, 24, 5);
+    // Neighbourhood signboards are intentionally part of the world art, not UI cards.
+    g.fillStyle(0x253b36, 0.92); g.fillRoundedRect(w * 0.105, h * 0.602, 160, 22, 5);
+    g.fillStyle(0xfff0d0, 1); g.fillRect(w * 0.12, h * 0.611, 130, 3);
+    g.fillStyle(0x253b36, 0.92); g.fillRoundedRect(w * 0.79, h * 0.602, 165, 22, 5);
+    g.fillStyle(0xfff0d0, 1); g.fillRect(w * 0.805, h * 0.611, 135, 3);
   }
 
   private drawBuilding(g: Phaser.GameObjects.Graphics, x: number, y: number, width: number, height: number, wall: number, roof: number, label: string) {
@@ -495,5 +548,19 @@ export default class CampusScene extends Phaser.Scene {
     this.player.x = Phaser.Math.Clamp(this.player.x, 28, this.scale.width * 2.5 - 28);
     this.player.y = Phaser.Math.Clamp(this.player.y, 28, this.scale.height * 2.5 - 42);
     this.player.setDepth(this.player.y);
+    if (this.minimap) {
+      const mw = 126, mh = 78, mx = this.scale.width - mw - 14, my = 112;
+      const mapX = mx + 7 + (this.player.x / this.worldWidth) * (mw - 14);
+      const mapY = my + 7 + (this.player.y / this.worldHeight) * (mh - 14);
+      this.minimap.clear();
+      this.minimap.fillStyle(0x101827, 0.88); this.minimap.fillRoundedRect(mx, my, mw, mh, 8);
+      this.minimap.lineStyle(1, 0xd8d1bd, 0.65); this.minimap.strokeRoundedRect(mx, my, mw, mh, 8);
+      this.minimap.lineStyle(3, 0xc6bda7, 0.9); this.minimap.lineBetween(mx + 7, my + mh * 0.54, mx + mw - 7, my + mh * 0.54);
+      this.minimap.lineStyle(2, 0x8caa8a, 0.85); this.minimap.lineBetween(mx + mw * 0.5, my + 6, mx + mw * 0.5, my + mh - 6);
+      this.minimap.fillStyle(0x7e9d83, 0.75); this.minimap.fillRect(mx + mw * 0.08, my + mh * 0.63, mw * 0.27, mh * 0.24);
+      this.minimap.fillStyle(0x6c8d9c, 0.8); this.minimap.fillEllipse(mx + mw * 0.84, my + mh * 0.82, 20, 11);
+      this.minimap.fillStyle(0xf6d27e, 1); this.minimap.fillCircle(mapX, mapY, 3.5);
+      this.minimap.lineStyle(1, 0xffffff, 0.85); this.minimap.strokeCircle(mapX, mapY, 6);
+    }
   }
 }
